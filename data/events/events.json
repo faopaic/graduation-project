@@ -1,0 +1,22 @@
+[
+  {
+    "id": "fatigue",
+    "title": "社員からの相談",
+    "text": "最近、仕事が多すぎて少し疲れています……。チームの雰囲気にも影響が出そうです。",
+    "image": "images/events/fatigue.svg",
+    "choices": [
+      { "label": "休暇を与える", "description": "社員を大切にする", "effects": { "funds": -20, "reputation": 2, "morale": 10 } },
+      { "label": "そのまま働いてもらう", "description": "納期を優先する", "effects": { "technology": 2, "morale": -10 } }
+    ]
+  },
+  {
+    "id": "conference",
+    "title": "技術カンファレンスへの招待",
+    "text": "社員をカンファレンスへ派遣しませんか？短期的な支出はありますが、技術力向上が期待できます。",
+    "image": "images/events/conference.svg",
+    "choices": [
+      { "label": "参加する", "description": "研究開発に投資する", "effects": { "funds": -80, "technology": 8 } },
+      { "label": "今回は見送る", "description": "資金を温存する", "effects": { "funds": 30, "reputation": -1 } }
+    ]
+  }
+]

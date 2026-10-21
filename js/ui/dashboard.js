@@ -1,0 +1,65 @@
+import { formatDate } from "../core/time.js";
+import { getCompanyRank, paySalaries } from "../company/company.js";
+import { getProgress } from "../project/project.js";
+
+export function renderHeader(state) {
+  document.querySelector("#current-date").textContent = formatDate(state);
+  document.querySelector("#funds").textContent = `${state.funds.toLocaleString()}万円`;
+  document.querySelector("#employee-count").textContent = `${state.employees.length}人`;
+  document.querySelector("#reputation").textContent = state.reputation;
+  document.querySelector("#technology").textContent = state.technology;
+}
+
+export function renderView(state, projects, employees, events, handlers) {
+  const content = document.querySelector("#main-content");
+  if (state.gameOver) {
+    content.innerHTML = `<section class="empty-state"><span class="big-icon">🏁</span><h2>5年間の経営が終了しました</h2><p>最終評価を確認してください。</p></section>`;
+    return;
+  }
+  const views = {
+    dashboard: () => renderDashboard(state),
+    employees: () => renderEmployees(state, employees, handlers),
+    projects: () => renderProjects(state, projects, handlers),
+    events: () => renderEvents(state, events, handlers)
+  };
+  content.innerHTML = (views[state.currentView] ?? views.dashboard)();
+  if (state.currentView === "employees") bindEmployeeButtons(handlers);
+  if (state.currentView === "projects") bindProjectButtons(handlers);
+  if (state.currentView === "events") bindEventButton(handlers);
+}
+
+function renderDashboard(state) {
+  const projects = state.activeProjects.map((project) => `
+    <div class="active-project compact-card">
+      <div class="project-heading"><strong>${project.name}</strong><span>${project.monthsRemaining}ヶ月</span></div>
+      <div class="progress-track"><span style="width:${getProgress(project)}%"></span></div>
+      <small>進捗 ${getProgress(project)}%</small>
+    </div>`).join("");
+  return `<section class="view-heading"><div><p class="eyebrow">MONTHLY REPORT</p><h2>会社ダッシュボード</h2></div><span class="company-rank">${getCompanyRank(state)}</span></section>
+    <div class="hero-panel"><div><p class="eyebrow">今日の経営判断</p><h2>次の一手が、会社の未来をつくる。</h2><p>案件を受注し、社員の力を活かして信頼を積み上げましょう。</p></div><div class="hero-mark">◈</div></div>
+    <div class="summary-grid"><div><span>進行中案件</span><strong>${state.activeProjects.length}件</strong></div><div><span>完了案件</span><strong>${state.completedProjects}件</strong></div><div><span>給与支出 / 月</span><strong>${paySalaries(state)}万円</strong></div><div><span>大型案件成功</span><strong>${state.largeProjectsCompleted}件</strong></div></div>
+    <section class="subsection"><div class="section-title"><h3>進行中の案件</h3><button class="text-button" data-view-link="projects">案件一覧を見る →</button></div>${projects || '<div class="empty-inline">現在進行中の案件はありません。案件一覧から仕事を受注しましょう。</div>'}</section>`;
+}
+
+function renderEmployees(state, candidates) {
+  const cards = state.employees.map((employee) => `<article class="employee-card"><div class="avatar">${employee.name.slice(0, 1)}</div><div class="employee-main"><div class="card-title"><h3>${employee.name}</h3><span>${employee.role}</span></div><div class="stat-line"><span>開発 ${employee.development}</span><span>デザイン ${employee.design}</span><span>管理 ${employee.management}</span></div><small>月給 ${employee.salary}万円</small></div></article>`).join("");
+  const available = candidates.filter((candidate) => !state.employees.some((employee) => employee.id === candidate.id)).map((candidate) => `<article class="candidate-card"><div class="avatar candidate">${candidate.name.slice(0, 1)}</div><div class="employee-main"><div class="card-title"><h3>${candidate.name}</h3><span>${candidate.role}</span></div><div class="stat-line"><span>開発 ${candidate.development}</span><span>デザイン ${candidate.design}</span><span>管理 ${candidate.management}</span></div><small>採用費 ${candidate.hireCost}万円 / 月給 ${candidate.salary}万円</small></div><button class="secondary-button hire-button" data-hire="${candidate.id}">採用</button></article>`).join("");
+  return `<section class="view-heading"><div><p class="eyebrow">TEAM MANAGEMENT</p><h2>社員</h2></div><span class="section-count">${state.employees.length}人</span></section><section class="card-list">${cards}</section><section class="subsection"><div class="section-title"><h3>採用候補</h3><span class="muted">採用費は一度だけ発生</span></div><section class="card-list">${available || '<div class="empty-inline">現在採用できる候補はいません。</div>'}</section></section>`;
+}
+
+function renderProjects(state, projects) {
+  const cards = projects.filter((project) => project.minReputation <= state.reputation).map((project) => {
+    const active = state.activeProjects.some((item) => item.projectId === project.id);
+    const eligible = state.technology >= project.requiredTechnology && state.employees.length >= project.requiredEmployees;
+    return `<article class="project-card"><div class="project-art image-placeholder">${project.large ? "LARGE" : "PROJECT"}</div><div class="project-body"><div class="card-title"><h3>${project.name}</h3><span class="difficulty">${"★".repeat(project.difficulty)}${"☆".repeat(5 - project.difficulty)}</span></div><p>${project.description}</p><div class="requirements"><span>報酬 <strong>${project.reward}万円</strong></span><span>期間 <strong>${project.duration}ヶ月</strong></span><span>必要技術 <strong>${project.requiredTechnology}</strong></span><span>必要人数 <strong>${project.requiredEmployees}人</strong></span></div><button class="primary-button accept-button" data-project="${project.id}" ${active || !eligible ? "disabled" : ""}>${active ? "進行中" : eligible ? "受注する" : "条件不足"}</button></div></article>`;
+  }).join("");
+  return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${projects.filter((project) => project.minReputation <= state.reputation).length}件</span></section><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">🔒</span><h3>評判を高めると新しい案件が登場します</h3></div>'}</div>`;
+}
+
+function renderEvents(state, events) {
+  return `<section class="view-heading"><div><p class="eyebrow">COMPANY LOG</p><h2>イベント</h2></div></section><div class="event-log"><div class="event-log-item"><span class="event-dot"></span><div><strong>会社を設立しました</strong><p>小さなチームで大きな未来を目指します。</p></div><time>1年目 4月</time></div>${state.lastEventId ? `<div class="event-log-item"><span class="event-dot"></span><div><strong>${events.find((event) => event.id === state.lastEventId)?.title ?? "イベント"}</strong><p>選択結果が会社の状態に反映されました。</p></div><time>最近</time></div>` : ""}</div>`;
+}
+
+function bindEmployeeButtons(handlers) { document.querySelectorAll("[data-hire]").forEach((button) => button.addEventListener("click", () => handlers.hire(button.dataset.hire))); }
+function bindProjectButtons(handlers) { document.querySelectorAll("[data-project]").forEach((button) => button.addEventListener("click", () => handlers.accept(button.dataset.project))); }
+function bindEventButton() {}
