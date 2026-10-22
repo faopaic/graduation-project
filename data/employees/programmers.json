@@ -1,0 +1,4 @@
+[
+  { "id": "sato", "name": "佐藤 陽子", "role": "プログラマー", "development": 18, "design": 5, "management": 7, "salary": 45, "hireCost": 80, "image": "images/employees/sato.svg" },
+  { "id": "suzuki", "name": "鈴木 恒一", "role": "エンジニア", "development": 16, "design": 8, "management": 12, "salary": 55, "hireCost": 100, "image": "images/employees/suzuki.svg" }
+]

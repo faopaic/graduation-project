@@ -8,7 +8,9 @@
 - `js/event/`: ランダムイベントと選択結果
 - `js/ui/`: DOM描画、ナビゲーション、モーダル、通知
 - `js/save/`: LocalStorageへの保存と読み込み
-- `data/`: 案件、社員、イベントのJSONデータ
+- `data/projects/`: 規模別の案件JSONデータ
+- `data/employees/`: 職種別の社員JSONデータ
+- `data/events/`: 対象別のイベントJSONデータ
 
 計算処理は各ドメインモジュールに置き、UIモジュールは状態を読み取ってHTMLを描画します。
 

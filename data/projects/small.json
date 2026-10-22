@@ -1,0 +1,17 @@
+[
+  {
+    "id": "website",
+    "name": "企業Webサイト制作",
+    "description": "地域企業の魅力を伝えるコーポレートサイトを制作します。",
+    "reward": 300,
+    "duration": 2,
+    "difficulty": 1,
+    "requiredTechnology": 20,
+    "requiredEmployees": 2,
+    "successReputation": 5,
+    "failureReputation": -4,
+    "large": false,
+    "image": "images/projects/website.svg",
+    "minReputation": 0
+  }
+]
