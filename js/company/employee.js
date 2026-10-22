@@ -1,12 +1,29 @@
 import { updateState } from "../core/gameState.js";
+import { addHistoryLog } from "../history/historyManager.js";
 
 export function hireEmployee(candidate) {
   let hired = false;
   updateState((state) => {
-    if (state.employees.some((employee) => employee.id === candidate.id) || state.funds < candidate.hireCost) return state;
+    if (
+      state.employees.some((employee) => employee.id === candidate.id) ||
+      state.funds < candidate.hireCost
+    ) {
+      return state;
+    }
     hired = true;
-    return { ...state, funds: state.funds - candidate.hireCost, employees: [...state.employees, { ...candidate }] };
+    addHistoryLog(
+      state,
+      "employee",
+      "社員採用",
+      `${candidate.name} が入社した`
+    );
+    return {
+      ...state,
+      funds: state.funds - candidate.hireCost,
+      employees: [...state.employees, { ...candidate }]
+    };
   });
+
   return hired;
 }
 

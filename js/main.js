@@ -9,30 +9,20 @@ import { setupNavigation } from "./ui/navigation.js";
 import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
 import { showNotification } from "./ui/notification.js";
 import { loadGame, saveGame } from "./save/save.js";
+import { addHistoryLog } from "./history/historyManager.js";
 
 let projects = [];
 let employees = [];
 let events = [];
 
 async function loadData() {
-  const dataPaths = [
-    "data/projects/small.json",
-    "data/projects/medium.json",
-    "data/projects/large.json",
-    "data/employees/programmers.json",
-    "data/employees/designers.json",
-    "data/employees/managers.json",
-    "data/events/employees.json",
-    "data/events/projects.json",
-    "data/events/company.json",
-    "data/events/random.json"
-  ];
-  const responses = await Promise.all(dataPaths.map((path) => fetch(path)));
-  if (responses.some((response) => !response.ok)) throw new Error("ゲームデータを読み込めませんでした。");
-  const data = await Promise.all(responses.map((response) => response.json()));
-  projects = data.slice(0, 3).flat();
-  employees = data.slice(3, 6).flat();
-  events = data.slice(6).flat();
+  const [projectsResponse, employeesResponse, eventsResponse] = await Promise.all([
+    fetch("data/projects/projects.json"),
+    fetch("data/employees/employees.json"),
+    fetch("data/events/events.json")
+  ]);
+  if (!projectsResponse.ok || !employeesResponse.ok || !eventsResponse.ok) throw new Error("ゲームデータを読み込めませんでした。");
+  [projects, employees, events] = await Promise.all([projectsResponse.json(), employeesResponse.json(), eventsResponse.json()]);
 }
 
 function render() {
@@ -115,16 +105,39 @@ function advanceGameMonth() {
 function restartGame() {
   closeModal();
   resetState();
-  updateState((state) => ({ ...state, employees: employees.slice(0, 2) }));
+  updateState((state) => ({
+    ...state,
+    employees: employees.slice(0, 2)
+  }));
+  const state = getState();
+  addHistoryLog(
+    state,
+    "company",
+    "会社設立",
+    "Blue Orbit Systemsを設立した"
+  );
   render();
 }
 
 async function startGame() {
   try {
     await loadData();
+
     if (!loadGame()) {
-      updateState((state) => ({ ...state, employees: employees.slice(0, 2) }));
+      updateState((state) => ({
+        ...state,
+        employees: employees.slice(0, 2)
+      }));
+      const state = getState();
+
+      addHistoryLog(
+        state,
+        "company",
+        "会社設立",
+        "Blue Orbit Systemsを設立した"
+      );
     }
+
     setupNavigation(render);
     document.querySelector("#next-month-button").addEventListener("click", advanceGameMonth);
     subscribe(render);
