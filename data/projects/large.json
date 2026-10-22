@@ -1,35 +1,5 @@
 [
   {
-    "id": "website",
-    "name": "企業Webサイト制作",
-    "description": "地域企業の魅力を伝えるコーポレートサイトを制作します。",
-    "reward": 300,
-    "duration": 2,
-    "difficulty": 1,
-    "requiredTechnology": 20,
-    "requiredEmployees": 2,
-    "successReputation": 5,
-    "failureReputation": -4,
-    "large": false,
-    "image": "images/projects/website.svg",
-    "minReputation": 0
-  },
-  {
-    "id": "app",
-    "name": "業務効率化アプリ開発",
-    "description": "中小企業向けの在庫・売上管理アプリを開発します。",
-    "reward": 650,
-    "duration": 3,
-    "difficulty": 2,
-    "requiredTechnology": 30,
-    "requiredEmployees": 3,
-    "successReputation": 8,
-    "failureReputation": -7,
-    "large": false,
-    "image": "images/projects/app.svg",
-    "minReputation": 35
-  },
-  {
     "id": "cloud",
     "name": "クラウド基盤移行プロジェクト",
     "description": "老朽化した社内システムを安全なクラウド基盤へ移行します。",

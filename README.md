@@ -23,8 +23,8 @@ python -m http.server 8000
 
 ## データの追加・調整
 
-- 案件: `data/projects/projects.json`
-- 社員: `data/employees/employees.json`
-- イベント: `data/events/events.json`
+- 案件: `data/projects/small.json`, `data/projects/medium.json`, `data/projects/large.json`
+- 社員: `data/employees/programmers.json`, `data/employees/designers.json`, `data/employees/managers.json`
+- イベント: `data/events/employees.json`, `data/events/projects.json`, `data/events/company.json`, `data/events/random.json`
 
 上記JSONの値を変更すると、ゲームバランスや登場データを調整できます。

@@ -1,0 +1,4 @@
+[
+  { "id": "yamada", "name": "山田 美咲", "role": "営業", "development": 5, "design": 10, "management": 16, "salary": 48, "hireCost": 85, "image": "images/employees/yamada.svg" },
+  { "id": "kobayashi", "name": "小林 海", "role": "プロジェクトマネージャー", "development": 12, "design": 8, "management": 20, "salary": 68, "hireCost": 120, "image": "images/employees/kobayashi.svg" }
+]

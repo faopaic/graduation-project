@@ -1,0 +1,3 @@
+[
+  { "id": "tanaka", "name": "田中 蓮", "role": "デザイナー", "development": 6, "design": 18, "management": 6, "salary": 42, "hireCost": 75, "image": "images/employees/tanaka.svg" }
+]

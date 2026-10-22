@@ -1,0 +1,17 @@
+[
+  {
+    "id": "app",
+    "name": "業務効率化アプリ開発",
+    "description": "中小企業向けの在庫・売上管理アプリを開発します。",
+    "reward": 650,
+    "duration": 3,
+    "difficulty": 2,
+    "requiredTechnology": 30,
+    "requiredEmployees": 3,
+    "successReputation": 8,
+    "failureReputation": -7,
+    "large": false,
+    "image": "images/projects/app.svg",
+    "minReputation": 35
+  }
+]

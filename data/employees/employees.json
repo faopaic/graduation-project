@@ -1,7 +1,0 @@
-[
-  { "id": "sato", "name": "佐藤 陽子", "role": "プログラマー", "development": 18, "design": 5, "management": 7, "salary": 45, "hireCost": 80, "image": "images/employees/sato.svg" },
-  { "id": "tanaka", "name": "田中 蓮", "role": "デザイナー", "development": 6, "design": 18, "management": 6, "salary": 42, "hireCost": 75, "image": "images/employees/tanaka.svg" },
-  { "id": "suzuki", "name": "鈴木 恒一", "role": "エンジニア", "development": 16, "design": 8, "management": 12, "salary": 55, "hireCost": 100, "image": "images/employees/suzuki.svg" },
-  { "id": "yamada", "name": "山田 美咲", "role": "営業", "development": 5, "design": 10, "management": 16, "salary": 48, "hireCost": 85, "image": "images/employees/yamada.svg" },
-  { "id": "kobayashi", "name": "小林 海", "role": "プロジェクトマネージャー", "development": 12, "design": 8, "management": 20, "salary": 68, "hireCost": 120, "image": "images/employees/kobayashi.svg" }
-]

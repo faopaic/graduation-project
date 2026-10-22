@@ -1,0 +1,12 @@
+[
+  {
+    "id": "fatigue",
+    "title": "社員からの相談",
+    "text": "最近、仕事が多すぎて少し疲れています……。チームの雰囲気にも影響が出そうです。",
+    "image": "images/events/fatigue.svg",
+    "choices": [
+      { "label": "休暇を与える", "description": "社員を大切にする", "effects": { "funds": -20, "reputation": 2, "morale": 10 } },
+      { "label": "そのまま働いてもらう", "description": "納期を優先する", "effects": { "technology": 2, "morale": -10 } }
+    ]
+  }
+]

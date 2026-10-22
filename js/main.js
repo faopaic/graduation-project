@@ -15,13 +15,24 @@ let employees = [];
 let events = [];
 
 async function loadData() {
-  const [projectsResponse, employeesResponse, eventsResponse] = await Promise.all([
-    fetch("data/projects/projects.json"),
-    fetch("data/employees/employees.json"),
-    fetch("data/events/events.json")
-  ]);
-  if (!projectsResponse.ok || !employeesResponse.ok || !eventsResponse.ok) throw new Error("ゲームデータを読み込めませんでした。");
-  [projects, employees, events] = await Promise.all([projectsResponse.json(), employeesResponse.json(), eventsResponse.json()]);
+  const dataPaths = [
+    "data/projects/small.json",
+    "data/projects/medium.json",
+    "data/projects/large.json",
+    "data/employees/programmers.json",
+    "data/employees/designers.json",
+    "data/employees/managers.json",
+    "data/events/employees.json",
+    "data/events/projects.json",
+    "data/events/company.json",
+    "data/events/random.json"
+  ];
+  const responses = await Promise.all(dataPaths.map((path) => fetch(path)));
+  if (responses.some((response) => !response.ok)) throw new Error("ゲームデータを読み込めませんでした。");
+  const data = await Promise.all(responses.map((response) => response.json()));
+  projects = data.slice(0, 3).flat();
+  employees = data.slice(3, 6).flat();
+  events = data.slice(6).flat();
 }
 
 function render() {
