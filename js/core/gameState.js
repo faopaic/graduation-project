@@ -5,7 +5,7 @@ const INITIAL_STATE = {
   reputation: 50,
   technology: 30,
   morale: 70,
-  history: [], // historyを追加 kon
+  history: [], // historyを追加
   employees: [],
   activeProjects: [],
   completedProjects: 0,

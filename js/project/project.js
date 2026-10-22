@@ -1,5 +1,6 @@
 import { updateState } from "../core/gameState.js";
 import { getTeamPower } from "../company/employee.js";
+import { addHistoryLog } from "../history/historyManager.js";
 
 export function getAvailableProjects(projects, state) {
   return projects.filter((project) => project.minReputation <= state.reputation);
@@ -16,6 +17,12 @@ export function acceptProject(project) {
   updateState((state) => {
     if (!canAcceptProject(project, state)) return state;
     accepted = true;
+    addHistoryLog(
+      state,
+      "project",
+      "案件受注",
+      `「${project.name}」を受注した`
+    );
     return {
       ...state,
       activeProjects: [...state.activeProjects, {
@@ -54,11 +61,28 @@ export function completeProjects(completed) {
     let largeProjectsCompleted = state.largeProjectsCompleted;
     completed.forEach((project) => {
       if (project.success) {
+
+        addHistoryLog(
+          state,
+          "project",
+          "案件完了",
+          `「${project.name}」が成功した`
+        );
+
         funds += project.reward;
         reputation += project.successReputation;
         completedProjects += 1;
-        if (project.large) largeProjectsCompleted += 1;
-      } else {
+
+        if (project.large) {
+          largeProjectsCompleted += 1;
+        }
+      }else {
+        addHistoryLog(
+          state,
+          "project",
+          "案件失敗",
+          `「${project.name}」が失敗した`
+        );
         reputation -= Math.abs(project.failureReputation);
       }
     });
