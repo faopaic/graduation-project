@@ -33,26 +33,39 @@ export function renderView(state, projects, employees, events, handlers) {
   });
 }
 
-function renderDashboard(state) {
-  const projects = state.activeProjects.map((project) => `
-    <div class="active-project compact-card">
-      <div class="project-heading"><strong>${project.name}</strong><span>${project.monthsRemaining}ヶ月</span></div>
-      <div class="progress-track"><span style="width:${getProgress(project)}%"></span></div>
-      <small>進捗 ${getProgress(project)}%</small>
-    </div>`).join("");
-  return `<div class="dashboard-layout">
-    <aside class="dashboard-side left-side">
-      <section class="pixel-panel company-panel"><div class="panel-ribbon">会社情報 ・ STATUS</div><div class="company-emblem">◆</div><h3>Blue Orbit Systems</h3><p class="muted">小さなチームの挑戦</p><div class="mini-facts"><span>設立 <b>1年目</b></span><span>ランク <b>${getCompanyRank(state)}</b></span><span>実績 <b>${state.completedProjects}件</b></span></div></section>
-      <section class="pixel-panel"><div class="panel-title"><h3>会社の状態</h3><small>0 — 100</small></div><div class="meter-row"><span>評判</span><div class="meter"><i style="width:${state.reputation}%"></i></div><b>${state.reputation}</b></div><div class="meter-row"><span>技術</span><div class="meter teal"><i style="width:${Math.min(100, state.technology)}%"></i></div><b>${state.technology}</b></div><div class="meter-row"><span>士気</span><div class="meter gold"><i style="width:${state.morale}%"></i></div><b>${state.morale}</b></div></section>
-    </aside>
-    <section class="dashboard-center">
-      <section class="view-heading"><div><p class="eyebrow">MONTHLY REPORT</p><h2>会社ダッシュボード</h2></div><span class="company-rank">${getCompanyRank(state)}</span></section>
-      <div class="hero-panel"><div><p class="eyebrow">今月の重点</p><h2>次の一手が、会社の未来をつくる。</h2><p>案件を受注し、社員の力を活かして信頼を積み上げましょう。</p></div><div class="hero-mark">◈</div></div>
-      <div class="summary-grid"><div><span>進行中案件</span><strong>${state.activeProjects.length}件</strong></div><div><span>完了案件</span><strong>${state.completedProjects}件</strong></div><div><span>給与支出 / 月</span><strong>${paySalaries(state)}万円</strong></div><div><span>大型案件成功</span><strong>${state.largeProjectsCompleted}件</strong></div></div>
-      <section class="subsection"><div class="section-title"><h3>進行中の案件</h3><button class="text-button" data-view-link="projects">案件一覧を見る →</button></div>${projects || '<div class="empty-inline">現在進行中の案件はありません。案件一覧から仕事を受注しましょう。</div>'}</section>
+function renderEvents(state) {
+
+  const historyLogs = state.history?.map((log) => `
+    <div class="event-log-item">
+      <span class="event-dot"></span>
+      <div>
+        <strong>${log.title}</strong>
+        <p>${log.description}</p>
+      </div>
+      <time>
+        ${log.year}年目 ${log.month}月
+      </time>
+    </div>
+  `).join("");
+  return `
+    <section class="view-heading">
+      <div>
+        <p class="eyebrow">COMPANY HISTORY</p>
+        <h2>会社史</h2>
+      </div>
+      <span class="section-count">
+        ${state.history?.length ?? 0}件
+      </span>
     </section>
-    <aside class="dashboard-side right-side"><section class="pixel-panel"><div class="panel-title"><h3>今月の記録</h3><small>LOG</small></div><div class="log-entry"><b>会社を設立</b><span>新しい月が始まりました</span></div><div class="log-entry"><b>社員 ${state.employees.length}人</b><span>チームが活動中</span></div><div class="log-entry"><b>案件 ${state.activeProjects.length}件</b><span>開発プロジェクト</span></div></section><section class="pixel-panel map-panel"><div class="panel-title"><h3>会社の成長</h3><small>YEAR 1</small></div><div class="pixel-map">${Array.from({ length: 36 }, (_, index) => `<i class="${index === 14 ? "selected" : ""}"></i>`).join("")}</div><small class="muted">次の月へ進むと記録が更新されます</small></section></aside>
-  </div>`;
+    <div class="event-log">
+      ${
+        historyLogs ||
+        `<div class="empty-state">
+          <h3>履歴はまだありません</h3>
+         </div>`
+      }
+    </div>
+  `;
 }
 
 function renderEmployees(state, candidates) {
