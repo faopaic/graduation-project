@@ -1,0 +1,183 @@
+/* IT会社経営シミュレーター */
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>IT会社経営シミュレーター試作</title>
+
+
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:30px;
+    background:#f5f5f5;
+}
+
+.container{
+    max-width:800px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+}
+
+.card{
+    border:1px solid #ddd;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:8px;
+}
+
+button{
+    padding:10px 20px;
+    cursor:pointer;
+    margin-right:10px;
+}
+
+h1{
+    color:#0078d7;
+}
+
+.status{
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+#log{
+    height:200px;
+    overflow-y:auto;
+    background:#222;
+    color:#00ff00;
+    padding:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>IT会社経営シミュレーター</h1>
+
+<div class="card">
+    <div class="status">資金 : <span id="money">1000000</span> 円</div>
+    <div class="status">評判 : <span id="reputation">10</span></div>
+    <div class="status">社員数 : <span id="employee">3</span> 人</div>
+    <div class="status">月 : <span id="month">1</span></div>
+</div>
+
+<div class="card">
+    <h2>案件</h2>
+
+    <button onclick="smallProject()">
+        Webサイト制作
+    </button>
+
+    <button onclick="mediumProject()">
+        業務システム開発
+    </button>
+
+    <button onclick="nextMonth()">
+        次の月へ
+    </button>
+</div>
+
+<div class="card">
+    <h2>ゲームログ</h2>
+    <div id="log"></div>
+</div>
+
+</div>
+
+<script>
+
+let money = 1000000;
+let reputation = 10;
+let employee = 3;
+let month = 1;
+
+function updateScreen(){
+
+    document.getElementById("money").textContent = money;
+    document.getElementById("reputation").textContent = reputation;
+    document.getElementById("employee").textContent = employee;
+    document.getElementById("month").textContent = month;
+
+}
+
+function addLog(text){
+
+    const log = document.getElementById("log");
+
+    log.innerHTML =
+        text + "<br>" + log.innerHTML;
+
+}
+
+function smallProject(){
+
+    money += 300000;
+    reputation += 2;
+
+    addLog("Webサイト制作案件を完了");
+    updateScreen();
+
+}
+
+function mediumProject(){
+
+    money += 1000000;
+    reputation += 5;
+
+    addLog("業務システム開発案件を完了");
+    updateScreen();
+
+}
+
+function nextMonth(){
+
+    month++;
+
+    const salary = employee * 250000;
+
+    money -= salary;
+
+    addLog("給与支払い -" + salary + "円");
+
+    const random = Math.random();
+
+    if(random < 0.2){
+
+        money -= 200000;
+        addLog("バグ発生！損失 200000円");
+
+    }else if(random < 0.3){
+
+        reputation += 3;
+        addLog("高評価レビュー獲得！ 評判 +3");
+
+    }
+
+    if(money < 0){
+
+        alert("資金が尽きました。ゲームオーバー");
+    }
+
+    if(month >= 60){
+
+        alert("5年間経営しました！");
+    }
+
+    updateScreen();
+
+}
+
+updateScreen();
+addLog("ゲーム開始");
+
+</script>
+
+</body>
+</html>
