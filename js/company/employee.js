@@ -1,4 +1,6 @@
 import { updateState } from "../core/gameState.js";
+import { addHistoryLog }
+from "../history/historyManager.js";
 
 export function hireEmployee(candidate) {
   let hired = false;
