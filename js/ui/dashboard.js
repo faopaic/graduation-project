@@ -20,7 +20,7 @@ export function renderView(state, projects, employees, events, handlers) {
     dashboard: () => renderDashboard(state),
     employees: () => renderEmployees(state, employees, handlers),
     projects: () => renderProjects(state, projects, handlers),
-    events: () => renderEvents(state, events, handlers)
+    events: () => renderEvents(state)
   };
   content.innerHTML = (views[state.currentView] ?? views.dashboard)();
   if (state.currentView === "employees") bindEmployeeButtons(handlers);
@@ -83,9 +83,7 @@ function renderProjects(state, projects) {
   return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${projects.filter((project) => project.minReputation <= state.reputation).length}件</span></section><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">🔒</span><h3>評判を高めると新しい案件が登場します</h3></div>'}</div>`;
 }
 
-function renderEvents(state, events) {
-  return `<section class="view-heading"><div><p class="eyebrow">COMPANY LOG</p><h2>イベント</h2></div></section><div class="event-log"><div class="event-log-item"><span class="event-dot"></span><div><strong>会社を設立しました</strong><p>小さなチームで大きな未来を目指します。</p></div><time>1年目 4月</time></div>${state.lastEventId ? `<div class="event-log-item"><span class="event-dot"></span><div><strong>${events.find((event) => event.id === state.lastEventId)?.title ?? "イベント"}</strong><p>選択結果が会社の状態に反映されました。</p></div><time>最近</time></div>` : ""}</div>`;
-}
+
 
 function bindEmployeeButtons(handlers) { document.querySelectorAll("[data-hire]").forEach((button) => button.addEventListener("click", () => handlers.hire(button.dataset.hire))); }
 function bindProjectButtons(handlers) { document.querySelectorAll("[data-project]").forEach((button) => button.addEventListener("click", () => handlers.accept(button.dataset.project))); }
