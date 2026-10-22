@@ -9,7 +9,7 @@ import { setupNavigation } from "./ui/navigation.js";
 import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
 import { showNotification } from "./ui/notification.js";
 import { loadGame, saveGame } from "./save/save.js";
-import { addHistoryLog } from "./js/history/historyManager.js";
+import { addHistoryLog } from "./history/historyManager.js";
 
 let projects = [];
 let employees = [];
@@ -105,7 +105,17 @@ function advanceGameMonth() {
 function restartGame() {
   closeModal();
   resetState();
-  updateState((state) => ({ ...state, employees: employees.slice(0, 2) }));
+  updateState((state) => ({
+    ...state,
+    employees: employees.slice(0, 2)
+  }));
+  const state = getState();
+  addHistoryLog(
+    state,
+    "company",
+    "会社設立",
+    "Blue Orbit Systemsを設立した"
+  );
   render();
 }
 
@@ -127,7 +137,7 @@ async function startGame() {
         "Blue Orbit Systemsを設立した"
       );
     }
-    
+
     setupNavigation(render);
     document.querySelector("#next-month-button").addEventListener("click", advanceGameMonth);
     subscribe(render);
