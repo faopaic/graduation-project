@@ -1,1 +1,76 @@
-[]
+[
+  {
+    "id": "random_media",
+    "title": "メディア掲載の依頼",
+    "text": "偶然ゲーム画面を見た記者から、会社の成長を紹介する記事を掲載したいという連絡がありました。",
+    "image": "images/events/random_media.svg",
+    "choices": [
+      {
+        "label": "取材を受ける",
+        "description": "会社の知名度を高める",
+        "effects": {
+          "reputation": 10,
+          "funds": 15,
+          "morale": 4
+        }
+      },
+      {
+        "label": "丁寧に断る",
+        "description": "業務への影響を避ける",
+        "effects": {
+          "funds": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "random_encounter",
+    "title": "偶然の出会い",
+    "text": "交流会で、面白い技術を持つ起業家と出会いました。協力すれば新しい可能性が生まれそうです。",
+    "image": "images/events/random_encounter.svg",
+    "choices": [
+      {
+        "label": "共同開発を提案する",
+        "description": "新しい技術を取り入れる",
+        "effects": {
+          "funds": -25,
+          "technology": 8,
+          "reputation": 3
+        }
+      },
+      {
+        "label": "情報交換だけにする",
+        "description": "慎重に関係を築く",
+        "effects": {
+          "technology": 2,
+          "funds": 10
+        }
+      }
+    ]
+  },
+  {
+    "id": "random_pc_failure",
+    "title": "突然のPC故障",
+    "text": "開発チームのPCが突然故障し、一部の作業が止まってしまいました。復旧方法を選んでください。",
+    "image": "images/events/random_pc_failure.svg",
+    "choices": [
+      {
+        "label": "すぐに買い替える",
+        "description": "開発の遅れを最小限にする",
+        "effects": {
+          "funds": -50,
+          "technology": 2
+        }
+      },
+      {
+        "label": "修理して使う",
+        "description": "資金を節約する",
+        "effects": {
+          "funds": -15,
+          "morale": -4,
+          "technology": -1
+        }
+      }
+    ]
+  }
+]

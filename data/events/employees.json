@@ -1,12 +1,292 @@
 [
   {
-    "id": "fatigue",
-    "title": "社員からの相談",
-    "text": "最近、仕事が多すぎて少し疲れています……。チームの雰囲気にも影響が出そうです。",
-    "image": "images/events/fatigue.svg",
+    "id": "employee_join",
+    "title": "新しい仲間",
+    "text": "以前から興味を持っていたというエンジニアから、あなたの会社で働きたいという連絡が届きました。",
+    "image": "images/events/employee_join.svg",
     "choices": [
-      { "label": "休暇を与える", "description": "社員を大切にする", "effects": { "funds": -20, "reputation": 2, "morale": 10 } },
-      { "label": "そのまま働いてもらう", "description": "納期を優先する", "effects": { "technology": 2, "morale": -10 } }
+      {
+        "label": "面接をしてみる",
+        "description": "採用の可能性を探る",
+        "effects": {
+          "funds": -5,
+          "reputation": 1
+        }
+      },
+      {
+        "label": "今回は断る",
+        "description": "現在の社員を優先する",
+        "effects": {
+          "funds": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_overtime",
+    "title": "増える残業",
+    "text": "納期が迫っている案件のため、一部の社員から残業が増えているという報告がありました。",
+    "image": "images/events/employee_overtime.svg",
+    "choices": [
+      {
+        "label": "人員を追加する",
+        "description": "社員の負担を減らす",
+        "effects": {
+          "funds": -30,
+          "morale": 8
+        }
+      },
+      {
+        "label": "このまま進める",
+        "description": "納期を優先する",
+        "effects": {
+          "technology": 3,
+          "morale": -8
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_training",
+    "title": "社員からの提案",
+    "text": "社員から、新しい技術を勉強するための社内研修を行いたいという提案がありました。",
+    "image": "images/events/employee_training.svg",
+    "choices": [
+      {
+        "label": "研修を実施する",
+        "description": "社員の成長に投資する",
+        "effects": {
+          "funds": -15,
+          "technology": 5,
+          "morale": 5
+        }
+      },
+      {
+        "label": "今は仕事を優先する",
+        "description": "現在の案件に集中する",
+        "effects": {
+          "technology": 1,
+          "morale": -2
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_success",
+    "title": "社員の成長",
+    "text": "最近、社員の一人が担当している仕事で大きな成果を上げました。本人もさらに難しい仕事に挑戦したいと話しています。",
+    "image": "images/events/employee_success.svg",
+    "choices": [
+      {
+        "label": "新しい仕事を任せる",
+        "description": "社員の成長を後押しする",
+        "effects": {
+          "technology": 4,
+          "morale": 6
+        }
+      },
+      {
+        "label": "今の仕事を続けてもらう",
+        "description": "安定した成果を優先する",
+        "effects": {
+          "morale": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_conflict",
+    "title": "チーム内の意見対立",
+    "text": "プロジェクトの進め方について、社員同士で意見が対立しています。このままでは作業にも影響が出そうです。",
+    "image": "images/events/employee_conflict.svg",
+    "choices": [
+      {
+        "label": "話し合いの場を作る",
+        "description": "時間を使って問題を解決する",
+        "effects": {
+          "funds": -5,
+          "morale": 5,
+          "reputation": 1
+        }
+      },
+      {
+        "label": "リーダーに任せる",
+        "description": "現場の判断を尊重する",
+        "effects": {
+          "morale": -3,
+          "technology": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_bonus",
+    "title": "臨時ボーナス",
+    "text": "最近の業績が好調だったため、社員から臨時ボーナスを支給してほしいという声が上がっています。",
+    "image": "images/events/employee_bonus.svg",
+    "choices": [
+      {
+        "label": "ボーナスを支給する",
+        "description": "社員に利益を還元する",
+        "effects": {
+          "funds": -50,
+          "morale": 15,
+          "reputation": 2
+        }
+      },
+      {
+        "label": "今回は見送る",
+        "description": "会社の資金を温存する",
+        "effects": {
+          "funds": 0,
+          "morale": -5
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_idea",
+    "title": "社員からの新しいアイデア",
+    "text": "社員から、現在開発しているシステムに新しい機能を追加してはどうかという提案がありました。",
+    "image": "images/events/employee_idea.svg",
+    "choices": [
+      {
+        "label": "試してみる",
+        "description": "新しいアイデアに挑戦する",
+        "effects": {
+          "technology": 6,
+          "morale": 5,
+          "funds": -10
+        }
+      },
+      {
+        "label": "今回は採用しない",
+        "description": "現在の計画を優先する",
+        "effects": {
+          "morale": -2
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_leave",
+    "title": "社員の長期休暇",
+    "text": "社員の一人から、家庭の事情でしばらく休暇を取りたいという相談がありました。",
+    "image": "images/events/employee_leave.svg",
+    "choices": [
+      {
+        "label": "休暇を認める",
+        "description": "社員の事情を優先する",
+        "effects": {
+          "morale": 8,
+          "reputation": 2
+        }
+      },
+      {
+        "label": "短期間だけにしてもらう",
+        "description": "会社への影響を抑える",
+        "effects": {
+          "technology": 2,
+          "morale": -6
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_headhunting",
+    "title": "社員への引き抜き話",
+    "text": "他社から、優秀な社員の一人に高待遇での転職の誘いが来ていることが分かりました。",
+    "image": "images/events/employee_headhunting.svg",
+    "choices": [
+      {
+        "label": "待遇を改善する",
+        "description": "社員を会社につなぎ止める",
+        "effects": {
+          "funds": -40,
+          "morale": 10
+        }
+      },
+      {
+        "label": "本人の意思に任せる",
+        "description": "社員自身の選択を尊重する",
+        "effects": {
+          "reputation": 2,
+          "morale": -5
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_newcomer",
+    "title": "新人社員の活躍",
+    "text": "入社したばかりの新人社員が、予想以上の成果を上げています。先輩社員からも評価されているようです。",
+    "image": "images/events/employee_newcomer.svg",
+    "choices": [
+      {
+        "label": "さらに仕事を任せる",
+        "description": "新人の成長を促す",
+        "effects": {
+          "technology": 4,
+          "morale": 5
+        }
+      },
+      {
+        "label": "まずは経験を積ませる",
+        "description": "無理をさせずに育成する",
+        "effects": {
+          "morale": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_fatigue",
+    "title": "社員からの相談",
+    "text": "最近、仕事が多すぎて少し疲れています。チームの雰囲気にも影響が出そうです。",
+    "image": "images/events/employee_fatigue.svg",
+    "choices": [
+      {
+        "label": "休暇を与える",
+        "description": "社員を大切にする",
+        "effects": {
+          "funds": -20,
+          "reputation": 2,
+          "morale": 10
+        }
+      },
+      {
+        "label": "そのまま働いてもらう",
+        "description": "納期を優先する",
+        "effects": {
+          "technology": 2,
+          "morale": -10
+        }
+      }
+    ]
+  },
+  {
+    "id": "employee_conference",
+    "title": "技術カンファレンスへの招待",
+    "text": "社員をカンファレンスへ派遣しませんか？短期的な支出はありますが、技術力向上が期待できます。",
+    "image": "images/events/employee_conference.svg",
+    "choices": [
+      {
+        "label": "参加する",
+        "description": "社員の学習に投資する",
+        "effects": {
+          "funds": -80,
+          "technology": 8,
+          "morale": 3
+        }
+      },
+      {
+        "label": "今回は見送る",
+        "description": "資金を温存する",
+        "effects": {
+          "funds": 30,
+          "reputation": -1
+        }
+      }
     ]
   }
 ]
