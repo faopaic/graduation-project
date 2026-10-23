@@ -10,19 +10,56 @@ import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
 import { showNotification } from "./ui/notification.js";
 import { loadGame, saveGame } from "./save/save.js";
 import { addHistoryLog } from "./history/historyManager.js";
-
 let projects = [];
 let employees = [];
 let events = [];
 
 async function loadData() {
-  const [projectsResponse, employeesResponse, eventsResponse] = await Promise.all([
-    fetch("data/projects/projects.json"),
-    fetch("data/employees/employees.json"),
-    fetch("data/events/events.json")
+
+  const responses = await Promise.all([
+
+    // 社員
+    fetch("data/employees/designers.json"),
+    fetch("data/employees/managers.json"),
+    fetch("data/employees/programmers.json"),
+
+    // 案件
+    fetch("data/projects/small.json"),
+    fetch("data/projects/medium.json"),
+    fetch("data/projects/large.json"),
+
+    // イベント
+    fetch("data/events/company.json"),
+    fetch("data/events/employees.json"),
+    fetch("data/events/projects.json"),
+    fetch("data/events/random.json")
+
   ]);
-  if (!projectsResponse.ok || !employeesResponse.ok || !eventsResponse.ok) throw new Error("ゲームデータを読み込めませんでした。");
-  [projects, employees, events] = await Promise.all([projectsResponse.json(), employeesResponse.json(), eventsResponse.json()]);
+  
+  responses.forEach((response) => {
+    if (!response.ok) {
+      throw new Error(`データ読み込み失敗: ${response.url}`);
+    }
+  });
+  const data = await Promise.all(
+    responses.map((response) => response.json())
+  );
+  employees = [
+    ...data[0],
+    ...data[1],
+    ...data[2]
+  ];
+  projects = [
+    ...data[3],
+    ...data[4],
+    ...data[5]
+  ];
+  events = [
+    ...data[6],
+    ...data[7],
+    ...data[8],
+    ...data[9]
+  ];
 }
 
 function render() {
