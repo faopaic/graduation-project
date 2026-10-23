@@ -1,6 +1,8 @@
 const INITIAL_STATE = {
   year: 1,
   month: 4,
+  calendarYear: 2026,
+  quarter: 1,
   funds: 1000,
   reputation: 50,
   technology: 30,
