@@ -1,5 +1,4 @@
-﻿{
-    "value":  [
+[
                   {
                       "id":  "small_001",
                       "name":  "企業Webサイト制作",
@@ -1200,6 +1199,4 @@
                       "reputationSuccess":  5,
                       "reputationFailure":  -3
                   }
-              ],
-    "Count":  100
-}
+]
