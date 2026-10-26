@@ -5,7 +5,11 @@ export function shouldTriggerEvent(state) {
 }
 
 export function chooseEvent(events, state) {
-  const options = events.filter((event) => event.id !== state.lastEventId);
+  const options = events.filter((event) => {
+    if (event.id === state.lastEventId) return false;
+    if (event.category === "projects") return state.activeProjects.length > 0;
+    return true;
+  });
   return options[Math.floor(Math.random() * options.length)] ?? null;
 }
 

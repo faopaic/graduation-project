@@ -62,12 +62,12 @@ function renderEmployees(state, candidates) {
 }
 
 function renderProjects(state, projects) {
-  const cards = projects.filter((project) => project.minReputation <= state.reputation).map((project) => {
+  const cards = projects.filter((project) => (project.minReputation ?? 0) <= state.reputation).map((project) => {
     const active = state.activeProjects.some((item) => item.projectId === project.id);
     const eligible = state.technology >= project.requiredTechnology && state.employees.length >= project.requiredEmployees;
     return `<article class="project-card"><div class="project-art image-placeholder">${project.large ? "LARGE" : "PROJECT"}</div><div class="project-body"><div class="card-title"><h3>${project.name}</h3><span class="difficulty">${"★".repeat(project.difficulty)}${"☆".repeat(5 - project.difficulty)}</span></div><p>${project.description}</p><div class="requirements"><span>報酬 <strong>${project.reward}万円</strong></span><span>期間 <strong>${project.duration}ヶ月</strong></span><span>必要技術 <strong>${project.requiredTechnology}</strong></span><span>必要人数 <strong>${project.requiredEmployees}人</strong></span></div><button class="primary-button accept-button" data-project="${project.id}" ${active || !eligible ? "disabled" : ""}>${active ? "進行中" : eligible ? "受注する" : "条件不足"}</button></div></article>`;
   }).join("");
-  return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${projects.filter((project) => project.minReputation <= state.reputation).length}件</span></section><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">🔒</span><h3>評判を高めると新しい案件が登場します</h3></div>'}</div>`;
+  return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${projects.filter((project) => (project.minReputation ?? 0) <= state.reputation).length}件</span></section><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">🔒</span><h3>評判を高めると新しい案件が登場します</h3></div>'}</div>`;
 }
 
 function renderEvents(state, events) {
