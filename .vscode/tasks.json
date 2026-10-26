@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Fix project reward values",
+			"type": "shell",
+			"command": "powershell -NoProfile -ExecutionPolicy Bypass -Command '(Get-Content -Raw -Encoding UTF8 \"data\\projects\\small.json\" | ConvertFrom-Json) | ForEach-Object { $_.reward = [math]::Round(([double]$_.reward) / 10000); $_ } | ConvertTo-Json -Depth 10 | Set-Content -Encoding UTF8 \"data\\projects\\small.json\"; (Get-Content -Raw -Encoding UTF8 \"data\\projects\\medium.json\" | ConvertFrom-Json) | ForEach-Object { $_.reward = [math]::Round(([double]$_.reward) / 10000); $_ } | ConvertTo-Json -Depth 10 | Set-Content -Encoding UTF8 \"data\\projects\\medium.json\"; (Get-Content -Raw -Encoding UTF8 \"data\\projects\\large.json\" | ConvertFrom-Json) | ForEach-Object { $_.reward = [math]::Round(([double]$_.reward) / 10000); $_ } | ConvertTo-Json -Depth 10 | Set-Content -Encoding UTF8 \"data\\projects\\large.json\"'",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}
