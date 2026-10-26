@@ -142,7 +142,6 @@ function advanceGameMonth() {
     }
   }
   if (hasReachedEnd(next)) finishGame();
-  console.log("growthMap",getState().growthMap.length);
   saveGame();
   render();
 }

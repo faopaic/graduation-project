@@ -63,8 +63,18 @@ function renderDashboard(state) {
       <div class="summary-grid"><div><span>進行中案件</span><strong>${state.activeProjects.length}件</strong></div><div><span>完了案件</span><strong>${state.completedProjects}件</strong></div><div><span>給与支出 / 月</span><strong>${paySalaries(state)}万円</strong></div><div><span>大型案件成功</span><strong>${state.largeProjectsCompleted}件</strong></div></div>
       <section class="subsection"><div class="section-title"><h3>進行中の案件</h3><button class="text-button" data-view-link="projects">案件一覧を見る →</button></div>${projects || '<div class="empty-inline">現在進行中の案件はありません。案件一覧から仕事を受注しましょう。</div>'}</section>
     </section>
-    <aside class="dashboard-side right-side"><section class="pixel-panel"><div class="panel-title"><h3>今月の記録</h3><small>LOG</small></div><div class="log-entry"><b>会社を設立</b><span>新しい月が始まりました</span></div><div class="log-entry"><b>社員 ${state.employees.length}人</b><span>チームが活動中</span></div><div class="log-entry"><b>案件 ${state.activeProjects.length}件</b><span>開発プロジェクト</span></div></section><section class="pixel-panel map-panel"><div class="panel-title"><h3>会社の成長</h3><small>YEAR 1</small></div><div class="pixel-map">${Array.from({ length: 36 }, (_, index) => `<i class="${index === 14 ? "selected" : ""}"></i>`).join("")}</div><small class="muted">次の月へ進むと記録が更新されます</small></section></aside>
-  </div>`;
+    <aside class="dashboard-side right-side"><section class="pixel-panel"><div class="panel-title"><h3>今月の記録</h3><small>LOG</small></div><div class="log-entry"><b>会社を設立</b><span>新しい月が始まりました</span></div><div class="log-entry"><b>社員 ${state.employees.length}人</b><span>チームが活動中</span></div><div class="log-entry"><b>案件 ${state.activeProjects.length}件</b><span>開発プロジェクト</span></div></section><section class="pixel-panel map-panel"><div class="panel-title"><h3>会社の成長</h3><small>YEAR 1</small></div>
+    <div class="pixel-map">
+    ${
+      state.growthMap
+        .slice(-60)
+        .map((cell) => `<i class="growth-cell level-${cell.colorLevel}">${cell.symbol || ""}</i>`)
+        .join("")
+        
+    }
+    </div><small class="muted">次の月へ進むと記録が更新されます</small></section></aside>
+    </div>`;
+    
 }
 
 function renderEmployees(state, candidates) {
@@ -122,3 +132,4 @@ function bindProjectButtons(handlers) {
   document.querySelectorAll("[data-page-type]").forEach((button) => button.addEventListener("click", () => handlers.changePage(button.dataset.pageType, Number(button.dataset.page))));
 }
 function bindEventButton() {}
+
