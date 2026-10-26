@@ -8,6 +8,7 @@ const INITIAL_STATE = {
   technology: 30,
   morale: 70,
   history: [],
+  growthMap: [],
   employees: [],
   activeProjects: [],
   completedProjects: 0,
