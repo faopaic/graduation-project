@@ -16,21 +16,20 @@ export function getGrowthMap(state) {
 }
 
 export function createGrowthCell(state) {
-  return {
-    year: state.year,
-    month: state.month,
-    calendarYear: state.calendarYear,
-    reputation: state.reputation,
-    technology: state.technology,
-    morale: state.morale,
-    funds: state.funds,
-    completedProjects:
-      state.completedProjects,
-    activeProjects:
-      state.activeProjects.length,
-    symbol: "",
-    event: ""
-  };
+    return {
+        year: state.year,
+        month: state.month,
+        calendarYear: state.calendarYear,
+        reputation: state.reputation,
+        technology: state.technology,
+        morale: state.morale,
+        funds: state.funds,
+        completedProjects: state.completedProjects,
+        activeProjects: state.activeProjects.length,
+        colorLevel:Math.min(10,Math.max(1,Math.ceil(state.reputation / 10))),
+        symbol: "",
+        event: ""
+    };
 }
 
 export function addGrowthCell(state) {
