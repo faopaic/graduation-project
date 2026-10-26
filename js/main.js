@@ -10,6 +10,7 @@ import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
 import { showNotification } from "./ui/notification.js";
 import { loadGame, saveGame } from "./save/save.js";
 import { addHistoryLog } from "./history/historyManager.js";
+import {initializeGameLoop,startGameLoop,pauseGameLoop,setGameSpeed,isGameRunning} from "./core/gameLoop.js";
 let projects = [];
 let employees = [];
 let events = [];
@@ -176,6 +177,37 @@ async function startGame() {
     }
 
     setupNavigation(render);
+    
+    initializeGameLoop(advanceGameMonth,updateTimeProgress);
+    startGameLoop();
+    document
+      .querySelector("#speed-1")
+      .addEventListener("click", () => {
+        setGameSpeed(1);
+    });
+    document
+      .querySelector("#speed-2")
+      .addEventListener("click", () => {
+        setGameSpeed(2);
+    });
+    document
+      .querySelector("#speed-4")
+      .addEventListener("click", () => {
+        setGameSpeed(4);
+    });
+    document
+      .querySelector("#pause-button")
+      .addEventListener("click", (event) => {
+        if (isGameRunning()) {
+          pauseGameLoop();
+          event.target.textContent =
+            "▶ 再開";
+        } else {
+          startGameLoop();
+          event.target.textContent =
+            "Ⅱ 一時停止";
+        }
+    });
     document.querySelector("#next-month-button").addEventListener("click", advanceGameMonth);
     subscribe(render);
     render();
@@ -183,5 +215,13 @@ async function startGame() {
     document.querySelector("#main-content").innerHTML = `<div class="empty-state"><h2>ゲームを起動できませんでした</h2><p>${error.message} ローカルサーバー経由でindex.htmlを開いてください。</p></div>`;
   }
 }
-
+function updateTimeProgress(value) {
+  const bar =
+    document.querySelector(
+      "#time-progress-fill"
+    );
+  if (!bar) return;
+  bar.style.width =
+    `${Math.min(value, 100)}%`;
+}
 startGame();
