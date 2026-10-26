@@ -2,6 +2,18 @@ import { formatDate } from "../core/time.js";
 import { getCompanyRank, paySalaries } from "../company/company.js";
 import { getProgress } from "../project/project.js";
 
+const EMPLOYEES_PER_PAGE = 10;
+const PROJECTS_PER_PAGE = 10;
+let employeePage = 1;
+let candidatePage = 1;
+let projectPage = 1;
+
+export function setPaginationPage(type, page) {
+  if (type === "employees") employeePage = page;
+  if (type === "candidates") candidatePage = page;
+  if (type === "projects") projectPage = page;
+}
+
 export function renderHeader(state) {
   document.querySelector("#current-date").textContent = formatDate(state);
   document.querySelector("#funds").textContent = `${state.funds.toLocaleString()}万円`;
@@ -56,25 +68,57 @@ function renderDashboard(state) {
 }
 
 function renderEmployees(state, candidates) {
-  const cards = state.employees.map((employee) => `<article class="employee-card"><div class="avatar">${employee.name.slice(0, 1)}</div><div class="employee-main"><div class="card-title"><h3>${employee.name}</h3><span>${employee.role}</span></div><div class="stat-line"><span>開発 ${employee.development}</span><span>デザイン ${employee.design}</span><span>管理 ${employee.management}</span></div><small>月給 ${employee.salary}万円</small></div></article>`).join("");
-  const available = candidates.filter((candidate) => !state.employees.some((employee) => employee.id === candidate.id)).map((candidate) => `<article class="candidate-card"><div class="avatar candidate">${candidate.name.slice(0, 1)}</div><div class="employee-main"><div class="card-title"><h3>${candidate.name}</h3><span>${candidate.role}</span></div><div class="stat-line"><span>開発 ${candidate.development}</span><span>デザイン ${candidate.design}</span><span>管理 ${candidate.management}</span></div><small>採用費 ${candidate.hireCost}万円 / 月給 ${candidate.salary}万円</small></div><button class="secondary-button hire-button" data-hire="${candidate.id}">採用</button></article>`).join("");
-  return `<section class="view-heading"><div><p class="eyebrow">TEAM MANAGEMENT</p><h2>社員</h2></div><span class="section-count">${state.employees.length}人</span></section><section class="card-list">${cards}</section><section class="subsection"><div class="section-title"><h3>採用候補</h3><span class="muted">採用費は一度だけ発生</span></div><section class="card-list">${available || '<div class="empty-inline">現在採用できる候補はいません。</div>'}</section></section>`;
+  const availableCandidates = candidates.filter((candidate) => !state.employees.some((employee) => employee.id === candidate.id));
+  const employeePages = getPageCount(state.employees.length, EMPLOYEES_PER_PAGE);
+  const candidatePages = getPageCount(availableCandidates.length, EMPLOYEES_PER_PAGE);
+  employeePage = clampPage(employeePage, employeePages);
+  candidatePage = clampPage(candidatePage, candidatePages);
+  const employeesOnPage = getPageItems(state.employees, employeePage, EMPLOYEES_PER_PAGE);
+  const candidatesOnPage = getPageItems(availableCandidates, candidatePage, EMPLOYEES_PER_PAGE);
+  const cards = employeesOnPage.map((employee) => `<article class="employee-card"><div class="avatar">${employee.name.slice(0, 1)}</div><div class="employee-main"><div class="card-title"><h3>${employee.name}</h3><span>${employee.role}</span></div><div class="stat-line"><span>開発 ${employee.development}</span><span>デザイン ${employee.design}</span><span>管理 ${employee.management}</span></div><small>月給 ${employee.salary}万円</small></div></article>`).join("");
+  const available = candidatesOnPage.map((candidate) => `<article class="candidate-card"><div class="avatar candidate">${candidate.name.slice(0, 1)}</div><div class="employee-main"><div class="card-title"><h3>${candidate.name}</h3><span>${candidate.role}</span></div><div class="stat-line"><span>開発 ${candidate.development}</span><span>デザイン ${candidate.design}</span><span>管理 ${candidate.management}</span></div><small>採用費 ${candidate.hireCost}万円 / 月給 ${candidate.salary}万円</small></div><button class="secondary-button hire-button" data-hire="${candidate.id}">採用</button></article>`).join("");
+  return `<section class="view-heading"><div><p class="eyebrow">TEAM MANAGEMENT</p><h2>社員</h2></div><span class="section-count">${state.employees.length}人</span></section><section class="card-list">${cards || '<div class="empty-inline">在籍社員はいません。</div>'}</section>${renderPagination("employees", employeePage, employeePages)}<section class="subsection"><div class="section-title"><h3>採用候補</h3><span class="muted">採用費は一度だけ発生</span></div><section class="card-list">${available || '<div class="empty-inline">現在採用できる候補はいません。</div>'}</section>${renderPagination("candidates", candidatePage, candidatePages)}</section>`;
 }
 
 function renderProjects(state, projects) {
   const visibleProjects = projects.filter((project) => (project.minReputation ?? 0) <= state.reputation);
-  const cards = visibleProjects.map((project) => {
+  const projectPages = getPageCount(visibleProjects.length, PROJECTS_PER_PAGE);
+  projectPage = clampPage(projectPage, projectPages);
+  const cards = getPageItems(visibleProjects, projectPage, PROJECTS_PER_PAGE).map((project) => {
     const active = state.activeProjects.some((item) => item.projectId === project.id);
     const eligible = state.technology >= project.requiredTechnology && state.employees.length >= project.requiredEmployees;
     return `<article class="project-card"><div class="project-art image-placeholder">${project.large ? "LARGE" : "PROJECT"}</div><div class="project-body"><div class="card-title"><h3>${project.name}</h3><span class="difficulty">${"★".repeat(project.difficulty)}${"☆".repeat(5 - project.difficulty)}</span></div><p>${project.description}</p><div class="requirements"><span>報酬 <strong>${project.reward}万円</strong></span><span>期間 <strong>${project.duration}ヶ月</strong></span><span>必要技術 <strong>${project.requiredTechnology}</strong></span><span>必要人数 <strong>${project.requiredEmployees}人</strong></span></div><button class="primary-button accept-button" data-project="${project.id}" ${active || !eligible ? "disabled" : ""}>${active ? "進行中" : eligible ? "受注する" : "条件不足"}</button></div></article>`;
   }).join("");
-  return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${visibleProjects.length}件</span></section><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">🔒</span><h3>評判を高めると新しい案件が登場します</h3></div>'}</div>`;
+  return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${visibleProjects.length}件</span></section><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">🔒</span><h3>評判を高めると新しい案件が登場します</h3></div>'}</div>${renderPagination("projects", projectPage, projectPages)}`;
+}
+
+function getPageCount(itemCount, pageSize) {
+  return Math.max(1, Math.ceil(itemCount / pageSize));
+}
+
+function getPageItems(items, page, pageSize) {
+  return items.slice((page - 1) * pageSize, page * pageSize);
+}
+
+function clampPage(page, pageCount) {
+  return Math.min(Math.max(page, 1), pageCount);
+}
+
+function renderPagination(type, page, pageCount) {
+  if (pageCount <= 1) return "";
+  return `<nav class="pagination" aria-label="ページ移動"><button class="secondary-button page-button" data-page-type="${type}" data-page="${page - 1}" ${page === 1 ? "disabled" : ""}>前へ</button><span>${page} / ${pageCount}</span><button class="secondary-button page-button" data-page-type="${type}" data-page="${page + 1}" ${page === pageCount ? "disabled" : ""}>次へ</button></nav>`;
 }
 
 function renderEvents(state, events) {
   return `<section class="view-heading"><div><p class="eyebrow">COMPANY LOG</p><h2>イベント</h2></div></section><div class="event-log"><div class="event-log-item"><span class="event-dot"></span><div><strong>会社を設立しました</strong><p>小さなチームで大きな未来を目指します。</p></div><time>1年目 4月</time></div>${state.lastEventId ? `<div class="event-log-item"><span class="event-dot"></span><div><strong>${events.find((event) => event.id === state.lastEventId)?.title ?? "イベント"}</strong><p>選択結果が会社の状態に反映されました。</p></div><time>最近</time></div>` : ""}</div>`;
 }
 
-function bindEmployeeButtons(handlers) { document.querySelectorAll("[data-hire]").forEach((button) => button.addEventListener("click", () => handlers.hire(button.dataset.hire))); }
-function bindProjectButtons(handlers) { document.querySelectorAll("[data-project]").forEach((button) => button.addEventListener("click", () => handlers.accept(button.dataset.project))); }
+function bindEmployeeButtons(handlers) {
+  document.querySelectorAll("[data-hire]").forEach((button) => button.addEventListener("click", () => handlers.hire(button.dataset.hire)));
+  document.querySelectorAll("[data-page-type]").forEach((button) => button.addEventListener("click", () => handlers.changePage(button.dataset.pageType, Number(button.dataset.page))));
+}
+function bindProjectButtons(handlers) {
+  document.querySelectorAll("[data-project]").forEach((button) => button.addEventListener("click", () => handlers.accept(button.dataset.project)));
+  document.querySelectorAll("[data-page-type]").forEach((button) => button.addEventListener("click", () => handlers.changePage(button.dataset.pageType, Number(button.dataset.page))));
+}
 function bindEventButton() {}

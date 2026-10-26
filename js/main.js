@@ -4,7 +4,7 @@ import { changeFunds, paySalaries } from "./company/company.js";
 import { growEmployees, hireEmployee } from "./company/employee.js";
 import { acceptProject, advanceProjects, completeProjects } from "./project/project.js";
 import { applyEventChoice, chooseEvent, markEventShown, shouldTriggerEvent } from "./event/event.js";
-import { renderHeader, renderView } from "./ui/dashboard.js";
+import { renderHeader, renderView, setPaginationPage } from "./ui/dashboard.js";
 import { setupNavigation } from "./ui/navigation.js";
 import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
 import { showNotification } from "./ui/notification.js";
@@ -68,8 +68,14 @@ function render() {
   renderHeader(state);
   renderView(state, projects, employees, events, {
     hire: handleHire,
-    accept: handleAccept
+    accept: handleAccept,
+    changePage: handlePageChange
   });
+}
+
+function handlePageChange(type, page) {
+  setPaginationPage(type, page);
+  render();
 }
 
 function handleHire(candidateId) {
