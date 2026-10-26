@@ -56,10 +56,10 @@ async function loadData() {
     ...data[5]
   ];
   events = [
-    ...data[6].map((event) => ({ ...event, category: "company" })),
-    ...data[7].map((event) => ({ ...event, category: "employees" })),
-    ...data[8].map((event) => ({ ...event, category: "projects" })),
-    ...data[9].map((event) => ({ ...event, category: "random" }))
+    ...data[6],
+    ...data[7],
+    ...data[8],
+    ...data[9]
   ];
 }
 

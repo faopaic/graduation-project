@@ -3,12 +3,11 @@ import { getTeamPower } from "../company/employee.js";
 import { addHistoryLog } from "../history/historyManager.js";
 
 export function getAvailableProjects(projects, state) {
-  return projects.filter((project) => (project.minReputation ?? 0) <= state.reputation);
+  return projects.filter((project) => project.minReputation <= state.reputation);
 }
 
 export function canAcceptProject(project, state) {
-  return (project.minReputation ?? 0) <= state.reputation
-    && state.technology >= project.requiredTechnology
+  return state.technology >= project.requiredTechnology
     && state.employees.length >= project.requiredEmployees
     && !state.activeProjects.some((active) => active.projectId === project.id);
 }
@@ -71,7 +70,7 @@ export function completeProjects(completed) {
         );
 
         funds += project.reward;
-        reputation += project.successReputation ?? project.reputationSuccess ?? 0;
+        reputation += project.successReputation;
         completedProjects += 1;
 
         if (project.large) {
@@ -84,7 +83,7 @@ export function completeProjects(completed) {
           "案件失敗",
           `「${project.name}」が失敗した`
         );
-        reputation -= Math.abs(project.failureReputation ?? project.reputationFailure ?? 0);
+        reputation -= Math.abs(project.failureReputation);
       }
     });
     return { ...state, funds, reputation: Math.min(100, Math.max(0, reputation)), completedProjects, largeProjectsCompleted };
