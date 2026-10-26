@@ -142,6 +142,7 @@ function advanceGameMonth() {
     }
   }
   if (hasReachedEnd(next)) finishGame();
+  console.log("growthMap",getState().growthMap.length);
   saveGame();
   render();
 }
@@ -180,6 +181,31 @@ async function startGame() {
         "会社設立",
         "Blue Orbit Systemsを設立した"
       );
+
+      updateState((state) => ({
+        ...state,
+        growthMap: [
+          {
+            year: state.year,
+            month: state.month,
+            calendarYear:
+              state.calendarYear,
+            reputation:
+              state.reputation,
+            technology:
+              state.technology,
+            morale:
+              state.morale,
+            funds:
+              state.funds,
+            completedProjects: 0,
+            activeProjects: 0,
+            symbol: "S",
+            event:
+              "会社設立"
+          }
+        ]
+      }));
     }
 
     setupNavigation(render);
