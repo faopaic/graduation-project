@@ -1,3 +1,4 @@
+import { getGrowthMap }from "./companyMap.js";
 export const LAST_YEAR = 5;
 
 export function formatDate(state) {
@@ -28,14 +29,18 @@ export function advanceMonth(state) {
     quarter = 4;
   }
 
-  return {
+  const nextState = {
     ...state,
     month,
     year,
     calendarYear,
     quarter
   };
-
+  return {
+    ...nextState,
+    growthMap:
+      getGrowthMap(nextState)
+  };
 }
 
 export function hasReachedEnd(state) {
