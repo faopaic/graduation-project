@@ -184,20 +184,30 @@ async function startGame() {
       .querySelector("#speed-1")
       .addEventListener("click", () => {
         setGameSpeed(1);
+        setActiveSpeedButton("#speed-1");
+        console.log("1x");
     });
     document
       .querySelector("#speed-2")
       .addEventListener("click", () => {
         setGameSpeed(2);
+        setActiveSpeedButton("#speed-2");
+        console.log("2x");
     });
     document
       .querySelector("#speed-4")
       .addEventListener("click", () => {
         setGameSpeed(4);
+        setActiveSpeedButton("#speed-4");
+        console.log("4x");
     });
     document
       .querySelector("#pause-button")
       .addEventListener("click", (event) => {
+        console.log(
+          "running=",
+          isGameRunning()
+        );
         if (isGameRunning()) {
           pauseGameLoop();
           event.target.textContent =
@@ -215,13 +225,23 @@ async function startGame() {
     document.querySelector("#main-content").innerHTML = `<div class="empty-state"><h2>ゲームを起動できませんでした</h2><p>${error.message} ローカルサーバー経由でindex.htmlを開いてください。</p></div>`;
   }
 }
+function setActiveSpeedButton(id) {
+  document
+    .querySelectorAll(".speed-button")
+    .forEach((button) => {
+      button.classList.remove("active");
+    });
+  document
+    .querySelector(id)
+    .classList.add("active");
+}
 function updateTimeProgress(value) {
-  const bar =
-    document.querySelector(
-      "#time-progress-fill"
-    );
-  if (!bar) return;
-  bar.style.width =
-    `${Math.min(value, 100)}%`;
+  const badge =
+    document.querySelector("#current-date");
+  if (!badge) return;
+  badge.style.setProperty(
+    "--progress-width",
+    `${Math.min(value,100)}%`
+  );
 }
 startGame();
