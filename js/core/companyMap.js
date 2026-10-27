@@ -69,3 +69,23 @@ export function addSpecialGrowthCell(
     cell
   ];
 }
+
+export function updateLatestGrowthCell(
+  state,
+  symbol,
+  event
+) {
+  if (state.growthMap.length === 0) {
+    return state.growthMap;
+  }
+  const growthMap =
+    [...state.growthMap];
+  const lastIndex =
+    growthMap.length - 1;
+  growthMap[lastIndex] = {
+    ...growthMap[lastIndex],
+    symbol,
+    event
+  };
+  return growthMap;
+}

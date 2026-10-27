@@ -11,6 +11,7 @@ import { showNotification } from "./ui/notification.js";
 import { clearSavedGame, loadGame, saveGame } from "./save/save.js";
 import { addHistoryLog } from "./history/historyManager.js";
 import {initializeGameLoop,startGameLoop,pauseGameLoop,setGameSpeed,isGameRunning} from "./core/gameLoop.js";
+import { updateLatestGrowthCell }from "./core/companyMap.js";
 let projects = [];
 let employees = [];
 let events = [];
@@ -89,40 +90,12 @@ function handleHire(candidateId) {
     showNotification(`${candidate.name}さんを採用しました。`, "success");
     updateState((state) => ({
       ...state,
-      growthMap: [
-        ...state.growthMap,
-        {
-          year: state.year,
-          month: state.month,
-          calendarYear:
-            state.calendarYear,
-          reputation:
-            state.reputation,
-          technology:
-            state.technology,
-          morale:
-            state.morale,
-          funds:
-            state.funds,
-          completedProjects:
-            state.completedProjects,
-          activeProjects:
-            state.activeProjects.length,
-          colorLevel:
-            Math.min(
-              10,
-              Math.max(
-                1,
-                Math.ceil(
-                  state.reputation / 10
-                )
-              )
-            ),
-          symbol: "E",
-          event:
-            `社員採用: ${candidate.name}`
-        }
-      ]
+      growthMap:
+        updateLatestGrowthCell(
+          state,
+          "E",
+          `社員採用: ${candidate.name}`
+        )
     }));
     saveGame();
     render();
@@ -203,42 +176,15 @@ function advanceGameMonth() {
   if (completed.length > 0) {
     completeProjects(completed);
     completed.forEach((project) => {
+      if (!project.success) return;
       updateState((state) => ({
         ...state,
-        growthMap: [
-          ...state.growthMap,
-          {
-            year: state.year,
-            month: state.month,
-            calendarYear:
-              state.calendarYear,
-            reputation:
-              state.reputation,
-            technology:
-              state.technology,
-            morale:
-              state.morale,
-            funds:
-              state.funds,
-            completedProjects:
-              state.completedProjects,
-            activeProjects:
-              state.activeProjects.length,
-            colorLevel:
-              Math.min(
-                10,
-                Math.max(
-                  1,
-                  Math.ceil(
-                    state.reputation / 10
-                  )
-                )
-              ),
-            symbol: "P",
-            event:
-              `案件成功: ${project.name}`
-          }
-        ]
+        growthMap:
+          updateLatestGrowthCell(
+            state,
+            "P",
+            `案件成功: ${project.name}`
+          )
       }));
     });
     completed.forEach((project) => showNotification(project.success ? `「${project.name}」が完了し、${project.reward}万円を獲得しました。` : `「${project.name}」は失敗しました。評判が低下しました。`, project.success ? "success" : "warning"));
