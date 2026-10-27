@@ -26,7 +26,13 @@ export function createGrowthCell(state) {
         funds: state.funds,
         completedProjects: state.completedProjects,
         activeProjects: state.activeProjects.length,
-        colorLevel:Math.min(10,Math.max(1,Math.ceil(state.reputation / 10))),
+        colorLevel:Math.min(
+            10,Math.max(
+                1,Math.ceil(
+                    state.reputation / 10
+                )
+            )
+        ),
         symbol: "",
         event: ""
     };
