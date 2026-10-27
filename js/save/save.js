@@ -25,6 +25,7 @@ export function loadGame() {
 function normalizeSavedState(savedState) {
   const state = { ...savedState };
   state.projectDeadlines = { ...(state.projectDeadlines ?? {}) };
+  state.projectReofferAt = { ...(state.projectReofferAt ?? {}) };
   for (const projectId of state.offeredProjectIds ?? []) {
     if (!state.projectDeadlines[projectId]) {
       state.projectDeadlines[projectId] = state.calendarYear * 12 + state.month + 2;

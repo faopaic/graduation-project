@@ -2,7 +2,7 @@ import { getState, resetState, subscribe, updateState } from "./core/gameState.j
 import { advanceMonth, hasReachedEnd } from "./core/time.js";
 import { changeFunds, paySalaries } from "./company/company.js";
 import { getEmployeeSales, getSalesPower, growEmployees, hireEmployee } from "./company/employee.js";
-import { acceptProject, advanceProjects, completeProjects, generateProjectOffers, getDeadlineMonths, getMonthIndex } from "./project/project.js";
+import { acceptProject, advanceProjects, completeProjects, expireProjectOffers, generateProjectOffers, getDeadlineMonths, getMonthIndex } from "./project/project.js";
 import { applyEventChoice, chooseEvent, markEventShown, shouldTriggerEvent } from "./event/event.js";
 import { renderHeader, renderView, setPaginationPage } from "./ui/dashboard.js";
 import { setupNavigation } from "./ui/navigation.js";
@@ -161,6 +161,10 @@ function advanceGameMonth() {
   if (current.gameOver) return;
   const salary = paySalaries(current);
   updateState((state) => ({ ...advanceMonth(state), funds: state.funds - salary }));
+  updateState((state) => ({
+    ...state,
+    projectReofferAt: expireProjectOffers(state)
+  }));
   const offers = generateProjectOffers(projects, getState());
   if (offers.length > 0) {
     updateState((state) => ({
@@ -177,7 +181,11 @@ function advanceGameMonth() {
             getMonthIndex(state) + getDeadlineMonths(project)
           ])
         )
-      }
+      },
+      projectReofferAt: Object.fromEntries(
+        Object.entries(state.projectReofferAt ?? {})
+          .filter(([projectId]) => !offers.some((project) => project.id === projectId))
+      )
     }));
     showNotification(`営業の結果、${offers.length}件の案件が提案されました。`, "success");
   }
