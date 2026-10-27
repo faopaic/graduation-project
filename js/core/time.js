@@ -1,4 +1,3 @@
-import { getGrowthMap }from "./companyMap.js";
 import { addGrowthCell }from "./companyMap.js";
 export const LAST_YEAR = 5;
 
@@ -32,7 +31,18 @@ export function advanceMonth(state) {
     calendarYear,
     quarter
   };
-  const growthMap = addGrowthCell(nextState);
+  let symbol = "";
+  let event = "";
+  if (month === 1) {
+    symbol = "Y";
+    event =
+      `創業${year}年目`;
+  }
+  const growthMap =addGrowthCell(
+    nextState,
+    symbol,
+    event
+  );
   return {
     ...nextState,
     growthMap

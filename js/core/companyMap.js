@@ -38,8 +38,32 @@ export function createGrowthCell(state) {
     };
 }
 
-export function addGrowthCell(state) {
-  const cell = createGrowthCell(state);
+export function addGrowthCell(
+  state,
+  symbol = "",
+  event = ""
+) {
+  const cell = {
+    ...createGrowthCell(state),
+    symbol,
+    event
+  };
+  return [
+    ...state.growthMap,
+    cell
+  ];
+}
+
+export function addSpecialGrowthCell(
+  state,
+  symbol,
+  event
+) {
+  const cell = {
+    ...createGrowthCell(state),
+    symbol,
+    event
+  };
   return [
     ...state.growthMap,
     cell

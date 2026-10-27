@@ -83,6 +83,43 @@ function handleHire(candidateId) {
   if (!candidate) return;
   if (hireEmployee(candidate)) {
     showNotification(`${candidate.name}さんを採用しました。`, "success");
+    updateState((state) => ({
+      ...state,
+      growthMap: [
+        ...state.growthMap,
+        {
+          year: state.year,
+          month: state.month,
+          calendarYear:
+            state.calendarYear,
+          reputation:
+            state.reputation,
+          technology:
+            state.technology,
+          morale:
+            state.morale,
+          funds:
+            state.funds,
+          completedProjects:
+            state.completedProjects,
+          activeProjects:
+            state.activeProjects.length,
+          colorLevel:
+            Math.min(
+              10,
+              Math.max(
+                1,
+                Math.ceil(
+                  state.reputation / 10
+                )
+              )
+            ),
+          symbol: "E",
+          event:
+            `社員採用: ${candidate.name}`
+        }
+      ]
+    }));
     saveGame();
     render();
   } else {
@@ -126,6 +163,45 @@ function advanceGameMonth() {
   const completed = advanceProjects(projects);
   if (completed.length > 0) {
     completeProjects(completed);
+    completed.forEach((project) => {
+      updateState((state) => ({
+        ...state,
+        growthMap: [
+          ...state.growthMap,
+          {
+            year: state.year,
+            month: state.month,
+            calendarYear:
+              state.calendarYear,
+            reputation:
+              state.reputation,
+            technology:
+              state.technology,
+            morale:
+              state.morale,
+            funds:
+              state.funds,
+            completedProjects:
+              state.completedProjects,
+            activeProjects:
+              state.activeProjects.length,
+            colorLevel:
+              Math.min(
+                10,
+                Math.max(
+                  1,
+                  Math.ceil(
+                    state.reputation / 10
+                  )
+                )
+              ),
+            symbol: "P",
+            event:
+              `案件成功: ${project.name}`
+          }
+        ]
+      }));
+    });
     completed.forEach((project) => showNotification(project.success ? `「${project.name}」が完了し、${project.reward}万円を獲得しました。` : `「${project.name}」は失敗しました。評判が低下しました。`, project.success ? "success" : "warning"));
   }
   growEmployees();
