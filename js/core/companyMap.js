@@ -34,7 +34,8 @@ export function createGrowthCell(state) {
             )
         ),
         symbol: "",
-        event: ""
+        event: "",
+        events: []
     };
 }
 
@@ -54,22 +55,13 @@ export function addGrowthCell(
   ];
 }
 
-export function addSpecialGrowthCell(
-  state,
-  symbol,
-  event
-) {
-  const cell = {
-    ...createGrowthCell(state),
-    symbol,
-    event
-  };
-  return [
-    ...state.growthMap,
-    cell
-  ];
-}
-
+const PRIORITY = {
+  Y: 1,
+  E: 2,
+  P: 3,
+  L: 4,
+  R: 5
+};
 export function updateLatestGrowthCell(
   state,
   symbol,
@@ -78,14 +70,25 @@ export function updateLatestGrowthCell(
   if (state.growthMap.length === 0) {
     return state.growthMap;
   }
-  const growthMap =
-    [...state.growthMap];
-  const lastIndex =
-    growthMap.length - 1;
+  const growthMap = [...state.growthMap];
+  const lastIndex = growthMap.length - 1;
+  const currentSymbol =
+    growthMap[lastIndex].symbol || "";
+  const currentPriority =
+    PRIORITY[currentSymbol] || 0;
+  const newPriority =
+    PRIORITY[symbol] || 0;
+  if (newPriority < currentPriority) {
+    return growthMap;
+  }
   growthMap[lastIndex] = {
     ...growthMap[lastIndex],
     symbol,
-    event
+    event,
+    events: [
+        ...(growthMap[lastIndex].events || []),
+        event
+    ]
   };
   return growthMap;
 }
