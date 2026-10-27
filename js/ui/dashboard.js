@@ -68,9 +68,20 @@ function renderDashboard(state) {
     ${
       state.growthMap
         .slice(-60)
-        .map((cell) => `<i class="growth-cell level-${cell.colorLevel}">${cell.symbol || ""}</i>`)
+        .map((cell) => `
+        <i
+          class="growth-cell level-${cell.colorLevel}"
+          title="${cell.calendarYear}年 ${cell.month}月
+            評判: ${cell.reputation}
+            技術: ${cell.technology}
+            士気: ${cell.morale}
+            資金: ${cell.funds}万円
+            ${cell.event || '記録なし'}
+          "
+        >
+          ${cell.symbol || ""}
+        </i>`)
         .join("")
-        
     }
     </div><small class="muted">次の月へ進むと記録が更新されます</small></section></aside>
     </div>`;

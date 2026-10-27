@@ -233,6 +233,20 @@ async function startGame() {
         console.log("4x");
     });
     document
+      .querySelector("#speed-8")
+      .addEventListener("click", () => {
+        setGameSpeed(8);
+        setActiveSpeedButton("#speed-8");
+        console.log("8x");
+    });
+    document
+      .querySelector("#speed-16")
+      .addEventListener("click", () => {
+        setGameSpeed(16);
+        setActiveSpeedButton("#speed-16");
+        console.log("16x");
+    });    
+    document
       .querySelector("#pause-button")
       .addEventListener("click", (event) => {
         console.log(
