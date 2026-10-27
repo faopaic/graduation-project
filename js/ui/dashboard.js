@@ -30,6 +30,7 @@ export function renderView(state, projects, employees, events, handlers) {
     return;
   }
   const views = {
+    start: () => renderStartScreen(),
     dashboard: () => renderDashboard(state),
     employees: () => renderEmployees(state, employees, handlers),
     projects: () => renderProjects(state, projects, handlers),
@@ -45,7 +46,32 @@ export function renderView(state, projects, employees, events, handlers) {
     });
   });
 }
-
+function renderStartScreen() {
+  return `
+    <section class="start-screen">
+      <div class="start-logo">
+        <h1>IT Company</h1>
+        <h2>
+          会社経営シミュレータ
+        </h2>
+      </div>
+      <div class="start-description">
+        <p>あなたは小さなIT企業の経営者です。</p>
+        <p>社員を採用し、案件を獲得し、評判と技術力を高めながら会社を成長させます。</p>
+        <p>目標は5年間で業界を代表する企業へ成長することです。</p>
+        <p>1ヶ月は45秒で進行します。</p>
+      </div>
+      <p class="start-subtitle">
+        IT Company - 会社経営シミュレータ
+      </p>
+      <button
+        id="start-company-button"
+        class="primary-button">
+        会社経営を始める
+      </button>
+    </section>
+  `;
+}
 function renderDashboard(state) {
   const projects = state.activeProjects.map((project) => `
     <div class="active-project compact-card">
@@ -55,9 +81,19 @@ function renderDashboard(state) {
     </div>`).join("");
   return `<div class="dashboard-layout">
     <aside class="dashboard-side left-side">
-      <section class="pixel-panel company-panel"><div class="panel-ribbon">会社情報 ・ STATUS</div><div class="company-emblem">◆</div><h3>Blue Orbit Systems</h3><p class="muted">小さなチームの挑戦</p><div class="mini-facts"><span>設立 <b>${state.year}年目</b></span><span>ランク <b>${getCompanyRank(state)}</b></span><span>実績 <b>${state.completedProjects}件</b></span></div></section>
-      <section class="pixel-panel"><div class="panel-title"><h3>会社の状態</h3><small>0 — 100</small></div><div class="meter-row"><span>評判</span><div class="meter"><i style="width:${state.reputation}%"></i></div><b>${state.reputation}</b></div><div class="meter-row"><span>技術</span><div class="meter teal"><i style="width:${Math.min(100, state.technology)}%"></i></div><b>${state.technology}</b></div>
-      <div class="meter-row"><span>士気</span><div class="meter gold"><i style="width:${state.morale}%"></i></div><b>${state.morale}</b></div></section>
+      <section class="pixel-panel company-panel"><div class="panel-ribbon">会社情報 ・ STATUS</div><div class="company-emblem">◆</div>
+      <h3>Blue Orbit Systems</h3><p class="muted">小さなチームの挑戦</p>
+      <div class="mini-facts">
+        <span>設立 <b>${state.year}年目</b></span>
+        <span>ランク <b>${getCompanyRank(state)}</b></span>
+        <span>実績 <b>${state.completedProjects}件</b></span>
+      </div>
+      </section>
+      <section class="pixel-panel"><div class="panel-title"><h3>会社の状態</h3><small>0 — 100</small></div><div class="meter-row"><span>評判</span>
+      <div class="meter"><i style="width:${state.reputation}%"></i></div><b>${state.reputation}</b></div><div class="meter-row"><span>技術</span>
+      <div class="meter teal"><i style="width:${Math.min(100, state.technology)}%"></i></div><b>${state.technology}</b></div>
+      <div class="meter-row"><span>士気</span><div class="meter gold"><i style="width:${state.morale}%"></i></div><b>${state.morale}</b></div>
+      </section>
     </aside>
     <section class="dashboard-center">
       <section class="view-heading"><div><p class="eyebrow">MONTHLY REPORT</p><h2>会社ダッシュボード</h2></div><span class="company-rank">${getCompanyRank(state)}</span></section>
@@ -68,7 +104,9 @@ function renderDashboard(state) {
       <div><span>給与支出 / 月</span><strong>${paySalaries(state)}万円</strong></div>
       <div><span>大型案件成功</span><strong>${state.largeProjectsCompleted}件</strong></div></div>
       <section class="subsection"><div class="section-title"><h3>進行中の案件</h3><button class="text-button" data-view-link="projects">案件一覧を見る →</button></div>
-      ${projects || '<div class="empty-inline">現在進行中の案件はありません。案件一覧から仕事を受注しましょう。</div>'}</section>
+      ${projects || 
+        '<div class="empty-inline">現在進行中の案件はありません。案件一覧から仕事を受注しましょう。</div>'}
+      </section>
     </section>
       <aside class="dashboard-side right-side">
       <section class="pixel-panel">

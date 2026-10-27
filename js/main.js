@@ -191,8 +191,10 @@ function advanceGameMonth() {
         growthMap:
           updateLatestGrowthCell(
             state,
-            "P",
-            `案件成功: ${project.name}`
+            project.large ? "L" : "P",
+            project.large
+              ? `大型案件成功: ${project.name}`
+              : `案件成功: ${project.name}`
           )
       }));
     });
@@ -365,4 +367,18 @@ function updateTimeProgress(value) {
     `${Math.min(value,100)}%`
   );
 }
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (
+    target &&
+    target.id ===
+      "start-company-button"
+  ) {
+    updateState((state) => ({
+      ...state,
+      currentView: "dashboard"
+    }));
+    render();
+  }
+});
 startGame();

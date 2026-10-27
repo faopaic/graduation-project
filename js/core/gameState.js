@@ -16,7 +16,7 @@ const INITIAL_STATE = {
   activeProjects: [],
   completedProjects: 0,
   largeProjectsCompleted: 0,
-  currentView: "dashboard",
+  currentView: "start",
   gameOver: false,
   finalRank: null,
   lastEventId: null
