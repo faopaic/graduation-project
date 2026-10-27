@@ -1,8 +1,8 @@
 import { getState, resetState, subscribe, updateState } from "./core/gameState.js";
 import { advanceMonth, hasReachedEnd } from "./core/time.js";
 import { changeFunds, paySalaries } from "./company/company.js";
-import { growEmployees, hireEmployee } from "./company/employee.js";
-import { acceptProject, advanceProjects, completeProjects } from "./project/project.js";
+import { getEmployeeSales, getSalesPower, growEmployees, hireEmployee } from "./company/employee.js";
+import { acceptProject, advanceProjects, completeProjects, generateProjectOffers, getDeadlineMonths, getMonthIndex } from "./project/project.js";
 import { applyEventChoice, chooseEvent, markEventShown, shouldTriggerEvent } from "./event/event.js";
 import { renderHeader, renderView, setPaginationPage } from "./ui/dashboard.js";
 import { setupNavigation } from "./ui/navigation.js";
@@ -50,7 +50,10 @@ async function loadData() {
     ...data[0],
     ...data[1],
     ...data[2]
-  ];
+  ].map((employee) => ({
+    ...employee,
+    sales: getEmployeeSales(employee)
+  }));
   projects = [
     ...data[3],
     ...data[4],
@@ -69,6 +72,7 @@ function render() {
   renderHeader(state);
   renderView(state, projects, employees, events, {
     hire: handleHire,
+    toggleSales: handleToggleSales,
     accept: handleAccept,
     changePage: handlePageChange
   });
@@ -98,6 +102,30 @@ function handleHire(candidateId) {
   } else {
     showNotification("採用費が不足しています。", "warning");
   }
+}
+
+function handleToggleSales(employeeId) {
+  const employee = getState().employees.find((item) => item.id === employeeId);
+  if (!employee) return;
+  updateState((state) => {
+    const salesEmployeeIds = state.salesEmployeeIds ?? [];
+    const assigned = salesEmployeeIds.includes(employeeId);
+    return {
+      ...state,
+      salesEmployeeIds: assigned
+        ? salesEmployeeIds.filter((id) => id !== employeeId)
+        : [...salesEmployeeIds, employeeId]
+    };
+  });
+  const assigned = getState().salesEmployeeIds.includes(employeeId);
+  showNotification(
+    assigned
+      ? `${employee.name}さんを営業担当にしました。営業力は${getSalesPower(getState())}です。`
+      : `${employee.name}さんを開発担当に戻しました。`,
+    "success"
+  );
+  saveGame();
+  render();
 }
 
 function handleAccept(projectId) {
@@ -133,6 +161,26 @@ function advanceGameMonth() {
   if (current.gameOver) return;
   const salary = paySalaries(current);
   updateState((state) => ({ ...advanceMonth(state), funds: state.funds - salary }));
+  const offers = generateProjectOffers(projects, getState());
+  if (offers.length > 0) {
+    updateState((state) => ({
+      ...state,
+      offeredProjectIds: [
+        ...(state.offeredProjectIds ?? []),
+        ...offers.map((project) => project.id)
+      ],
+      projectDeadlines: {
+        ...(state.projectDeadlines ?? {}),
+        ...Object.fromEntries(
+          offers.map((project) => [
+            project.id,
+            getMonthIndex(state) + getDeadlineMonths(project)
+          ])
+        )
+      }
+    }));
+    showNotification(`営業の結果、${offers.length}件の案件が提案されました。`, "success");
+  }
   const completed = advanceProjects(projects);
   if (completed.length > 0) {
     completeProjects(completed);
