@@ -1,7 +1,7 @@
 import { formatDate } from "../core/time.js";
 import { getCompanyRank, paySalaries } from "../company/company.js";
 import { getEmployeeSales, getSalesPower } from "../company/employee.js";
-import { canAcceptProject, getProgress } from "../project/project.js";
+import { canAcceptProject, getDeadlineMonths, getMonthIndex, getProgress } from "../project/project.js";
 
 const EMPLOYEES_PER_PAGE = 10;
 const PROJECTS_PER_PAGE = 10;
@@ -108,13 +108,23 @@ function renderEmployees(state, candidates) {
 
 function renderProjects(state, projects) {
   const offeredProjectIds = state.offeredProjectIds ?? [];
-  const visibleProjects = projects.filter((project) => offeredProjectIds.includes(project.id));
+  const visibleProjects = projects.filter((project) =>
+    offeredProjectIds.includes(project.id)
+    && (
+      state.activeProjects.some((active) => active.projectId === project.id)
+      || !state.projectDeadlines?.[project.id]
+      || getMonthIndex(state) <= state.projectDeadlines[project.id]
+    )
+  );
   const projectPages = getPageCount(visibleProjects.length, PROJECTS_PER_PAGE);
   projectPage = clampPage(projectPage, projectPages);
   const cards = getPageItems(visibleProjects, projectPage, PROJECTS_PER_PAGE).map((project) => {
     const active = state.activeProjects.some((item) => item.projectId === project.id);
     const eligible = canAcceptProject(project, state);
-    return `<article class="project-card"><div class="project-art image-placeholder">${project.large ? "LARGE" : "PROJECT"}</div><div class="project-body"><div class="card-title"><h3>${project.name}</h3><span class="difficulty">${"★".repeat(project.difficulty)}${"☆".repeat(5 - project.difficulty)}</span></div><p>${project.description}</p><div class="requirements"><span>報酬 <strong>${project.reward}万円</strong></span><span>期間 <strong>${project.duration}ヶ月</strong></span><span>必要技術 <strong>${project.requiredTechnology}</strong></span><span>必要人数 <strong>${project.requiredEmployees}人</strong></span></div><button class="primary-button accept-button" data-project="${project.id}" ${active || !eligible ? "disabled" : ""}>${active ? "進行中" : eligible ? "受注する" : "条件不足"}</button></div></article>`;
+    const remainingMonths = state.projectDeadlines?.[project.id]
+      ? state.projectDeadlines[project.id] - getMonthIndex(state)
+      : getDeadlineMonths(project);
+    return `<article class="project-card"><div class="project-art image-placeholder">${project.large ? "LARGE" : "PROJECT"}</div><div class="project-body"><div class="card-title"><h3>${project.name}</h3><span class="difficulty">${"★".repeat(project.difficulty)}${"☆".repeat(5 - project.difficulty)}</span></div><p>${project.description}</p><div class="requirements"><span>報酬 <strong>${project.reward}万円</strong></span><span>期間 <strong>${project.duration}ヶ月</strong></span><span>必要技術 <strong>${project.requiredTechnology}</strong></span><span>必要人数 <strong>${project.requiredEmployees}人</strong></span><span>受注期限 <strong>あと${remainingMonths}ヶ月</strong></span></div><button class="primary-button accept-button" data-project="${project.id}" ${active || !eligible ? "disabled" : ""}>${active ? "進行中" : eligible ? "受注する" : "条件不足"}</button></div></article>`;
   }).join("");
   return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${visibleProjects.length}件</span></section><p class="muted">営業の結果、提案された案件だけが表示されます。</p><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">📣</span><h3>営業を進めると案件が提案されます</h3><p>次の月へ進むと営業結果を確認できます。</p></div>'}</div>${renderPagination("projects", projectPage, projectPages)}`;
 }

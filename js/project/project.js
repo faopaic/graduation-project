@@ -6,29 +6,40 @@ export function getAvailableProjects(projects, state) {
   return projects.filter((project) => (project.minReputation ?? 0) <= state.reputation);
 }
 
-export function generateProjectOffers(projects, state, offerCount = 3) {
+export function generateProjectOffers(projects, state) {
   const offeredProjectIds = state.offeredProjectIds ?? [];
   const candidates = projects.filter((project) =>
     !offeredProjectIds.includes(project.id)
     && (project.minReputation ?? 0) <= state.reputation
   );
-  const salesPower = state.employees
-    .filter((employee) => (state.salesEmployeeIds ?? []).includes(employee.id))
-    .reduce((total, employee) => total + getEmployeeSales(employee), 0);
-  const maxTier = salesPower >= 35 ? 3 : salesPower >= 15 ? 2 : 1;
-  const eligible = candidates.filter((project) => getProjectTier(project) <= maxTier);
   const offers = [];
-  while (offers.length < offerCount && eligible.length > 0) {
-    const weights = eligible.map((project) => Math.max(1, maxTier - getProjectTier(project) + 1));
-    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-    let target = Math.random() * totalWeight;
-    const selectedIndex = weights.findIndex((weight) => {
-      target -= weight;
-      return target < 0;
+  const salesEmployeeIds = state.salesEmployeeIds ?? [];
+  state.employees
+    .filter((employee) => salesEmployeeIds.includes(employee.id))
+    .forEach((employee) => {
+      const sales = getEmployeeSales(employee);
+      const offerCount = sales >= 18 ? 3 : sales >= 10 ? 2 : 1;
+      const maxTier = sales >= 18 ? 3 : sales >= 10 ? 2 : 1;
+      for (let index = 0; index < offerCount; index += 1) {
+        const available = candidates.filter((project) =>
+          !offers.some((offer) => offer.id === project.id)
+          && getProjectTier(project) <= maxTier
+        );
+        if (available.length === 0) break;
+        const offer = chooseRandomProject(available, maxTier);
+        offers.push(offer);
+      }
     });
-    offers.push(eligible.splice(selectedIndex < 0 ? eligible.length - 1 : selectedIndex, 1)[0]);
-  }
   return offers;
+}
+
+function chooseRandomProject(projects, maxTier) {
+  const tier = 1 + Math.floor(Math.random() * maxTier);
+  const tierProjects = projects.filter((project) => getProjectTier(project) === tier);
+  const pool = tierProjects.length > 0
+    ? tierProjects
+    : projects;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function getProjectTier(project) {
@@ -43,11 +54,23 @@ export function canAcceptProject(project, state) {
     0
   );
   const operationalEmployeeCount = getOperationalEmployees(state).length;
+  const deadline = state.projectDeadlines?.[project.id];
   return (project.minReputation ?? 0) <= state.reputation
+    && (!deadline || getMonthIndex(state) <= deadline)
     && state.technology >= project.requiredTechnology
     && operationalEmployeeCount >= project.requiredEmployees
     && assignedEmployees + project.requiredEmployees <= operationalEmployeeCount
     && !state.activeProjects.some((active) => active.projectId === project.id);
+}
+
+export function getMonthIndex(state) {
+  return state.calendarYear * 12 + state.month;
+}
+
+export function getDeadlineMonths(project) {
+  if (project.large || project.requiredEmployees > 5) return 4;
+  if (project.requiredEmployees > 2) return 3;
+  return 2;
 }
 
 export function acceptProject(project) {

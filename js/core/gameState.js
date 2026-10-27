@@ -12,6 +12,7 @@ const INITIAL_STATE = {
   employees: [],
   salesEmployeeIds: [],
   offeredProjectIds: [],
+  projectDeadlines: {},
   activeProjects: [],
   completedProjects: 0,
   largeProjectsCompleted: 0,

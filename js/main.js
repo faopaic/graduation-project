@@ -2,7 +2,7 @@ import { getState, resetState, subscribe, updateState } from "./core/gameState.j
 import { advanceMonth, hasReachedEnd } from "./core/time.js";
 import { changeFunds, paySalaries } from "./company/company.js";
 import { getEmployeeSales, getSalesPower, growEmployees, hireEmployee } from "./company/employee.js";
-import { acceptProject, advanceProjects, completeProjects, generateProjectOffers } from "./project/project.js";
+import { acceptProject, advanceProjects, completeProjects, generateProjectOffers, getDeadlineMonths, getMonthIndex } from "./project/project.js";
 import { applyEventChoice, chooseEvent, markEventShown, shouldTriggerEvent } from "./event/event.js";
 import { renderHeader, renderView, setPaginationPage } from "./ui/dashboard.js";
 import { setupNavigation } from "./ui/navigation.js";
@@ -168,7 +168,16 @@ function advanceGameMonth() {
       offeredProjectIds: [
         ...(state.offeredProjectIds ?? []),
         ...offers.map((project) => project.id)
-      ]
+      ],
+      projectDeadlines: {
+        ...(state.projectDeadlines ?? {}),
+        ...Object.fromEntries(
+          offers.map((project) => [
+            project.id,
+            getMonthIndex(state) + getDeadlineMonths(project)
+          ])
+        )
+      }
     }));
     showNotification(`営業の結果、${offers.length}件の案件が提案されました。`, "success");
   }

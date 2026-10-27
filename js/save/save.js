@@ -24,6 +24,12 @@ export function loadGame() {
 
 function normalizeSavedState(savedState) {
   const state = { ...savedState };
+  state.projectDeadlines = { ...(state.projectDeadlines ?? {}) };
+  for (const projectId of state.offeredProjectIds ?? []) {
+    if (!state.projectDeadlines[projectId]) {
+      state.projectDeadlines[projectId] = state.calendarYear * 12 + state.month + 2;
+    }
+  }
   if (state.funds >= 100000) {
     state.funds = Math.round(state.funds / 10000);
   }
