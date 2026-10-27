@@ -10,6 +10,8 @@ const INITIAL_STATE = {
   history: [],
   growthMap: [],
   employees: [],
+  salesEmployeeIds: [],
+  offeredProjectIds: [],
   activeProjects: [],
   completedProjects: 0,
   largeProjectsCompleted: 0,

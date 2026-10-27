@@ -1,9 +1,40 @@
 import { updateState } from "../core/gameState.js";
-import { getTeamPower } from "../company/employee.js";
+import { getEmployeeSales, getOperationalEmployees, getTeamPower } from "../company/employee.js";
 import { addHistoryLog } from "../history/historyManager.js";
 
 export function getAvailableProjects(projects, state) {
   return projects.filter((project) => (project.minReputation ?? 0) <= state.reputation);
+}
+
+export function generateProjectOffers(projects, state, offerCount = 3) {
+  const offeredProjectIds = state.offeredProjectIds ?? [];
+  const candidates = projects.filter((project) =>
+    !offeredProjectIds.includes(project.id)
+    && (project.minReputation ?? 0) <= state.reputation
+  );
+  const salesPower = state.employees
+    .filter((employee) => (state.salesEmployeeIds ?? []).includes(employee.id))
+    .reduce((total, employee) => total + getEmployeeSales(employee), 0);
+  const maxTier = salesPower >= 35 ? 3 : salesPower >= 15 ? 2 : 1;
+  const eligible = candidates.filter((project) => getProjectTier(project) <= maxTier);
+  const offers = [];
+  while (offers.length < offerCount && eligible.length > 0) {
+    const weights = eligible.map((project) => Math.max(1, maxTier - getProjectTier(project) + 1));
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    let target = Math.random() * totalWeight;
+    const selectedIndex = weights.findIndex((weight) => {
+      target -= weight;
+      return target < 0;
+    });
+    offers.push(eligible.splice(selectedIndex < 0 ? eligible.length - 1 : selectedIndex, 1)[0]);
+  }
+  return offers;
+}
+
+function getProjectTier(project) {
+  if (project.large || project.requiredEmployees > 5) return 3;
+  if (project.requiredEmployees > 2) return 2;
+  return 1;
 }
 
 export function canAcceptProject(project, state) {
@@ -11,10 +42,11 @@ export function canAcceptProject(project, state) {
     (total, active) => total + (active.requiredEmployees ?? 1),
     0
   );
+  const operationalEmployeeCount = getOperationalEmployees(state).length;
   return (project.minReputation ?? 0) <= state.reputation
     && state.technology >= project.requiredTechnology
-    && state.employees.length >= project.requiredEmployees
-    && assignedEmployees + project.requiredEmployees <= state.employees.length
+    && operationalEmployeeCount >= project.requiredEmployees
+    && assignedEmployees + project.requiredEmployees <= operationalEmployeeCount
     && !state.activeProjects.some((active) => active.projectId === project.id);
 }
 
