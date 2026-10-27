@@ -135,7 +135,7 @@ function advanceGameMonth() {
     if (event) {
       markEventShown(event.id);
       showChoiceModal(event, (choice) => {
-        applyEventChoice(choice);
+        applyEventChoice(choice, employees, projects);
         saveGame();
         render();
       });

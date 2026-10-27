@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "id": "employee_candidate",
+    "title": "優秀な人材の応募",
+    "text": "高い技術力を持つエンジニアから応募があった。",
+    "choices": [
+      { "label": "採用する", "description": "採用費110万円。開発力が増加し、毎月の給与が発生する。", "effects": { "hireEmployeeId": "nakamura" } },
+      { "label": "見送る", "description": "費用は発生しない。開発力は変化しない。", "effects": {} }
+    ]
+  },
+  {
+    "id": "employee_training",
+    "title": "社員のスキルアップ",
+    "text": "社員から技術研修の希望が出た。",
+    "choices": [
+      { "label": "研修を実施する", "description": "研修費用を支払い、社員の開発力を高める。", "effects": { "funds": -120, "employeeDevelopment": 3, "technology": 3 } },
+      { "label": "研修を見送る", "description": "費用は発生しない。能力は変化しない。", "effects": {} }
+    ]
+  },
+  {
+    "id": "employee_resignation",
+    "title": "社員の退職希望",
+    "text": "社員が待遇や業務負担を理由に退職を検討している。",
+    "choices": [
+      { "label": "待遇を改善する", "description": "資金を使って社員を引き留め、退職リスクを下げる。", "effects": { "funds": -100, "morale": 8, "reputation": 2 } },
+      { "label": "現状を維持する", "description": "費用は発生しないが、社員が退職する可能性がある。", "effects": { "removeEmployee": true, "morale": -10 } }
+    ]
+  }
+]

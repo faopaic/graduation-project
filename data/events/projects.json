@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "workload_increase",
+    "title": "社員の負担増加",
+    "text": "案件の増加により社員の業務負担が大きくなっている。",
+    "choices": [
+      { "label": "追加採用で対応する", "description": "資金を使い、社員の負担を軽減する。", "effects": { "funds": -120, "morale": 8, "technology": 2 } },
+      { "label": "既存社員で対応する", "description": "追加費用を抑えられるが、疲労やミスのリスクが高まる。", "effects": { "morale": -12, "reputation": -3 } }
+    ]
+  }
+]
