@@ -7,9 +7,14 @@ export function getAvailableProjects(projects, state) {
 }
 
 export function canAcceptProject(project, state) {
+  const assignedEmployees = state.activeProjects.reduce(
+    (total, active) => total + (active.requiredEmployees ?? 1),
+    0
+  );
   return (project.minReputation ?? 0) <= state.reputation
     && state.technology >= project.requiredTechnology
     && state.employees.length >= project.requiredEmployees
+    && assignedEmployees + project.requiredEmployees <= state.employees.length
     && !state.activeProjects.some((active) => active.projectId === project.id);
 }
 
@@ -32,7 +37,8 @@ export function acceptProject(project) {
         monthsRemaining: project.duration,
         totalMonths: project.duration,
         reward: project.reward,
-        large: project.large
+        large: project.large,
+        requiredEmployees: project.requiredEmployees
       }]
     };
   });

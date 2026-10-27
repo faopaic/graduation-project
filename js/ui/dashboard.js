@@ -1,6 +1,6 @@
 import { formatDate } from "../core/time.js";
 import { getCompanyRank, paySalaries } from "../company/company.js";
-import { getProgress } from "../project/project.js";
+import { canAcceptProject, getProgress } from "../project/project.js";
 
 const EMPLOYEES_PER_PAGE = 10;
 const PROJECTS_PER_PAGE = 10;
@@ -107,7 +107,7 @@ function renderProjects(state, projects) {
   projectPage = clampPage(projectPage, projectPages);
   const cards = getPageItems(visibleProjects, projectPage, PROJECTS_PER_PAGE).map((project) => {
     const active = state.activeProjects.some((item) => item.projectId === project.id);
-    const eligible = state.technology >= project.requiredTechnology && state.employees.length >= project.requiredEmployees;
+    const eligible = canAcceptProject(project, state);
     return `<article class="project-card"><div class="project-art image-placeholder">${project.large ? "LARGE" : "PROJECT"}</div><div class="project-body"><div class="card-title"><h3>${project.name}</h3><span class="difficulty">${"★".repeat(project.difficulty)}${"☆".repeat(5 - project.difficulty)}</span></div><p>${project.description}</p><div class="requirements"><span>報酬 <strong>${project.reward}万円</strong></span><span>期間 <strong>${project.duration}ヶ月</strong></span><span>必要技術 <strong>${project.requiredTechnology}</strong></span><span>必要人数 <strong>${project.requiredEmployees}人</strong></span></div><button class="primary-button accept-button" data-project="${project.id}" ${active || !eligible ? "disabled" : ""}>${active ? "進行中" : eligible ? "受注する" : "条件不足"}</button></div></article>`;
   }).join("");
   return `<section class="view-heading"><div><p class="eyebrow">PROJECT BOARD</p><h2>案件一覧</h2></div><span class="section-count">${visibleProjects.length}件</span></section><div class="project-list">${cards || '<div class="empty-state"><span class="big-icon">🔒</span><h3>評判を高めると新しい案件が登場します</h3></div>'}</div>${renderPagination("projects", projectPage, projectPages)}`;
@@ -143,4 +143,3 @@ function bindProjectButtons(handlers) {
   document.querySelectorAll("[data-page-type]").forEach((button) => button.addEventListener("click", () => handlers.changePage(button.dataset.pageType, Number(button.dataset.page))));
 }
 function bindEventButton() {}
-
