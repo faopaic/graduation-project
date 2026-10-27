@@ -76,9 +76,15 @@ function renderDashboard(state) {
             評判: ${cell.reputation}
             技術: ${cell.technology}
             士気: ${cell.morale}
-            資金: ${cell.funds}万円
-            ${cell.event || '記録なし'}
-          "
+            資金: ${cell.funds.toLocaleString()}万円
+            完了案件: ${cell.completedProjects}
+            進行案件: ${cell.activeProjects}
+            ${
+              cell.events?.length
+                ? cell.events.join('\n')
+                : '記録なし'
+            }
+            "
         >
           ${cell.symbol || ""}
         </i>`)
