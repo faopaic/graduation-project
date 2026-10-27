@@ -8,7 +8,7 @@ import { renderHeader, renderView, setPaginationPage } from "./ui/dashboard.js";
 import { setupNavigation } from "./ui/navigation.js";
 import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
 import { showNotification } from "./ui/notification.js";
-import { loadGame, saveGame } from "./save/save.js";
+import { clearSavedGame, loadGame, saveGame } from "./save/save.js";
 import { addHistoryLog } from "./history/historyManager.js";
 import {initializeGameLoop,startGameLoop,pauseGameLoop,setGameSpeed,isGameRunning} from "./core/gameLoop.js";
 let projects = [];
@@ -148,6 +148,7 @@ function advanceGameMonth() {
 
 function restartGame() {
   closeModal();
+  clearSavedGame();
   resetState();
   updateState((state) => ({
     ...state,
@@ -160,6 +161,7 @@ function restartGame() {
     "会社設立",
     "Blue Orbit Systemsを設立した"
   );
+  saveGame();
   render();
 }
 
@@ -266,6 +268,10 @@ async function startGame() {
     document.querySelector("#next-month-button").addEventListener("click", advanceGameMonth);
     subscribe(render);
     render();
+    const state = getState();
+    if (state.gameOver) {
+      showFinalModal(state, state.finalRank ?? getFinalRank(state), restartGame);
+    }
   } catch (error) {
     document.querySelector("#main-content").innerHTML = `<div class="empty-state"><h2>ゲームを起動できませんでした</h2><p>${error.message} ローカルサーバー経由でindex.htmlを開いてください。</p></div>`;
   }

@@ -6,6 +6,10 @@ export function saveGame() {
   localStorage.setItem(SAVE_KEY, JSON.stringify(getState()));
 }
 
+export function clearSavedGame() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
 export function loadGame() {
   const saved = localStorage.getItem(SAVE_KEY);
   if (!saved) return false;
