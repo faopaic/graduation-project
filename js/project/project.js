@@ -18,8 +18,8 @@ export function generateProjectOffers(projects, state) {
     .filter((employee) => salesEmployeeIds.includes(employee.id))
     .forEach((employee) => {
       const sales = getEmployeeSales(employee);
-      const offerCount = sales >= 18 ? 3 : sales >= 10 ? 2 : 1;
-      const maxTier = sales >= 18 ? 3 : sales >= 10 ? 2 : 1;
+      const offerCount = sales >= 10 ? 3 : sales >= 5 ? 2 : 1;
+      const maxTier = sales >= 50 ? 3 : sales >= 30 ? 2 : 1;
       for (let index = 0; index < offerCount; index += 1) {
         const available = candidates.filter((project) =>
           !offers.some((offer) => offer.id === project.id)
