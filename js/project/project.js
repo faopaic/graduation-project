@@ -58,6 +58,7 @@ export function completeProjects(completed) {
   updateState((state) => {
     let funds = state.funds;
     let reputation = state.reputation;
+    let technology = state.technology;
     let completedProjects = state.completedProjects;
     let largeProjectsCompleted = state.largeProjectsCompleted;
     completed.forEach((project) => {
@@ -72,6 +73,7 @@ export function completeProjects(completed) {
 
         funds += project.reward;
         reputation += project.successReputation ?? project.reputationSuccess ?? 0;
+        technology += project.technologyGain ?? Math.max(1, project.difficulty ?? 1);
         completedProjects += 1;
 
         if (project.large) {
@@ -87,7 +89,14 @@ export function completeProjects(completed) {
         reputation -= Math.abs(project.failureReputation ?? project.reputationFailure ?? 0);
       }
     });
-    return { ...state, funds, reputation: Math.min(100, Math.max(0, reputation)), completedProjects, largeProjectsCompleted };
+    return {
+      ...state,
+      funds,
+      reputation: Math.min(100, Math.max(0, reputation)),
+      technology,
+      completedProjects,
+      largeProjectsCompleted
+    };
   });
 }
 
