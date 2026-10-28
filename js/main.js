@@ -248,21 +248,23 @@ function restartGame() {
 async function startGame() {
   try {
     await loadData();
-
-    if (!loadGame()) {
-      updateState((state) => ({
-        ...state,
-        employees: employees.slice(0, 2)
-      }));
+    const loaded = loadGame();
+    updateState((state) => ({
+      ...state,
+      currentView: "start"
+    }));
+    if (!loaded) {
+    updateState((state) => ({
+      ...state,
+      employees: employees.slice(0, 2)
+    }));
       const state = getState();
-
       addHistoryLog(
         state,
         "company",
         "会社設立",
         "Blue Orbit Systemsを設立した"
       );
-
       updateState((state) => ({
         ...state,
         growthMap: [
@@ -380,8 +382,9 @@ document.addEventListener("click", (event) => {
   if (
     target &&
     target.id ===
-      "start-company-button"
+      "continue-company-button"
   ) {
+    loadGame();
     updateState((state) => ({
       ...state,
       currentView: "dashboard"

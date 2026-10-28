@@ -64,11 +64,18 @@ function renderStartScreen() {
       <p class="start-subtitle">
         IT Company - 会社経営シミュレータ
       </p>
-      <button
-        id="start-company-button"
-        class="primary-button">
-        会社経営を始める
-      </button>
+      <div class="start-buttons">
+        <button
+          id="start-company-button"
+          class="primary-button">
+          会社経営を始める
+        </button>
+        <button
+          id="continue-company-button"
+          class="secondary-button">
+          続きから
+        </button>
+      </div>
     </section>
   `;
 }
