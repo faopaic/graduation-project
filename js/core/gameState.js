@@ -10,13 +10,27 @@ const INITIAL_STATE = {
   history: [],
   growthMap: [],
   employees: [],
+  availableEmployeeIds: [],
+  employeeHiresRemaining: 0,
+  salaryPerEmployee: 24,
+  salaryAdjustment: 0,
+  equipmentLevel: 1,
+  equipmentCondition: 100,
   activeProjects: [],
+  pendingProjectRewards: [],
+  qualityInvestmentRewardBonusMonths: 0,
+  availableProjectIds: [],
+  projectOfferProbabilityBonus: 0,
   completedProjects: 0,
   largeProjectsCompleted: 0,
   currentView: "dashboard",
+  previousView: "employees",
   gameOver: false,
   finalRank: null,
-  lastEventId: null
+  lastEventId: null,
+  pendingEventIds: [],
+  eventActionUnlocked: false,
+  projectRewardRate: 1
 };
 
 let state = structuredClone(INITIAL_STATE);
@@ -32,7 +46,12 @@ export function resetState() {
 }
 
 export function replaceState(nextState) {
-  state = { ...structuredClone(INITIAL_STATE), ...nextState };
+  state = {
+    ...structuredClone(INITIAL_STATE),
+    ...nextState,
+    equipmentLevel: Math.min(6, Math.max(1, nextState.equipmentLevel ?? INITIAL_STATE.equipmentLevel)),
+    equipmentCondition: Math.min(100, Math.max(0, nextState.equipmentCondition ?? INITIAL_STATE.equipmentCondition))
+  };
   notify();
 }
 

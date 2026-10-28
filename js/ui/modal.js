@@ -7,7 +7,6 @@ export function showChoiceModal(event, onChoose) {
   root.innerHTML = `
     <div class="modal-backdrop">
       <section class="modal-card event-modal" role="dialog" aria-modal="true">
-        <button class="modal-close" data-close-modal aria-label="閉じる">×</button>
         <div class="modal-image image-placeholder">EVENT</div>
         <p class="eyebrow">RANDOM EVENT</p>
         <h2>${event.title}</h2>
@@ -17,7 +16,6 @@ export function showChoiceModal(event, onChoose) {
         </div>
       </section>
     </div>`;
-  root.querySelector("[data-close-modal]").addEventListener("click", closeModal);
   root.querySelectorAll("[data-choice]").forEach((button) => {
     button.addEventListener("click", () => {
       onChoose(event.choices[Number(button.dataset.choice)]);

@@ -1,1 +1,2 @@
 .event-log { display: grid; gap: 0; }.event-log-item { display: grid; grid-template-columns: 16px 1fr auto; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--line); }.event-log-item p { margin: 5px 0 0; color: var(--muted); font-size: .85rem; }.event-log-item time { color: var(--muted); font-size: .75rem; }.event-dot { width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 5px #e7efff; }
+.management-notice { margin: 14px 0 0; padding: 10px; border: 1px dashed var(--line); color: var(--muted); font-size: .8rem; }

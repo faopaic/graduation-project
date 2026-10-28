@@ -1,1 +1,192 @@
-[]
+[
+  {
+    "id": "company_001",
+    "title": "優秀な人材の応募",
+    "text": "高い技術力を持つエンジニアから応募があった。",
+    "condition": "採用枠に空きがある",
+    "probability": 10,
+    "choices": [
+      {
+        "label": "採用する",
+        "description": "採用費が発生し、開発力が増加する。",
+        "effects": { "funds": -100, "technology": 5, "hireEmployee": "engineer" }
+      },
+      {
+        "label": "見送る",
+        "description": "費用は発生しないが、開発力は変化しない。",
+        "effects": {}
+      }
+    ]
+  },
+  {
+    "id": "company_002",
+    "title": "社員のスキルアップ",
+    "text": "社員から技術研修の希望が出た。",
+    "condition": "一定期間、研修を実施していない",
+    "probability": 7.5,
+    "choices": [
+      {
+        "label": "研修を実施する",
+        "description": "研修費が発生し、社員の能力が向上する。",
+        "effects": { "funds": -50, "technology": 4, "morale": 3 }
+      },
+      {
+        "label": "現状を維持する",
+        "description": "費用は発生しないが、能力は変化しない。",
+        "effects": {}
+      }
+    ]
+  },
+  {
+    "id": "company_003",
+    "title": "社員の退職希望",
+    "text": "社員が待遇や業務負担を理由に退職を検討している。",
+    "condition": "社員の士気が低い、負担が大きい",
+    "probability": 5,
+    "choices": [
+      {
+        "label": "待遇を改善する",
+        "description": "資金が減少し、退職リスクが下がる。",
+        "effects": { "funds": -80, "morale": 8 }
+      },
+      {
+        "label": "現状を維持する",
+        "description": "費用は発生しないが、社員が退職する可能性がある。",
+        "effects": { "morale": -8, "reputation": -3, "removeEmployee": true }
+      }
+    ]
+  },
+  {
+    "id": "company_004",
+    "title": "新規顧客からの営業",
+    "text": "新しい顧客から開発案件を紹介された。",
+    "condition": "会社が営業可能な状態にある",
+    "probability": 30,
+    "choices": [
+      {
+        "label": "商談を進める",
+        "description": "営業費用が発生し、案件を受注できる可能性がある。",
+        "effects": { "funds": -30, "reputation": 4, "addProjectOffers": 1 }
+      },
+      {
+        "label": "断る",
+        "description": "費用は発生しないが、新たな受注機会を失う。",
+        "effects": {}
+      }
+    ]
+  },
+  {
+    "id": "company_005",
+    "title": "設備・開発環境の更新",
+    "text": "開発用PCやサーバーの老朽化が問題になっている。",
+    "condition": "設備が一定期間更新されていない",
+    "probability": 5,
+    "choices": [
+      {
+        "label": "設備を更新する",
+        "description": "資金が減少し、開発効率が向上する。",
+        "effects": { "funds": -120, "technology": 6, "equipmentLevel": 1 }
+      },
+      {
+        "label": "更新を見送る",
+        "description": "資金を維持できるが、開発効率が低下する可能性がある。",
+        "effects": { "technology": -3 }
+      }
+    ]
+  },
+  {
+    "id": "company_006",
+    "title": "人件費の上昇",
+    "text": "人件費の増加により利益が圧迫されている。",
+    "condition": "社員数や給与総額が一定以上",
+    "probability": 7.5,
+    "choices": [
+      {
+        "label": "給与体系を見直す",
+        "description": "管理費用が発生するが、長期的な人件費を抑えられる可能性がある。",
+        "effects": { "funds": -50, "morale": -2, "salaryAdjustment": 0.05 }
+      },
+      {
+        "label": "現状を維持する",
+        "description": "変更費用は発生しないが、利益が圧迫される。",
+        "effects": { "funds": -100 }
+      }
+    ]
+  },
+  {
+    "id": "company_007",
+    "title": "競合他社の台頭",
+    "text": "競合他社が同種のサービスを低価格で提供し始めた。",
+    "condition": "一定以上の評判や事業規模がある",
+    "probability": 30,
+    "choices": [
+      {
+        "label": "品質向上に投資する",
+        "description": "資金が減少するが、評判や受注率の維持につながる。",
+        "effects": { "qualityInvestment": true, "technology": 5, "reputation": 4, "projectOfferProbabilityBonus": 0.05 }
+      },
+      {
+        "label": "価格を引き下げる",
+        "description": "受注率が上がる可能性があるが、利益率が下がる。",
+        "effects": { "reputation": -2, "funds": -30, "projectRewardRate": -0.1 }
+      }
+    ]
+  },
+  {
+    "id": "company_008",
+    "title": "社員の負担増加",
+    "text": "案件の増加により社員の業務負担が大きくなっている。",
+    "condition": "同時進行案件数や負荷が一定以上",
+    "probability": 30,
+    "choices": [
+      {
+        "label": "追加採用を行う",
+        "description": "採用費と人件費が増加するが、負担が軽減する。",
+        "effects": { "funds": -100, "morale": 8, "hireEmployee": "support" }
+      },
+      {
+        "label": "既存社員で対応する",
+        "description": "追加費用を抑えられるが、疲労やミスのリスクが増加する。",
+        "effects": { "morale": -10, "reputation": -2 }
+      }
+    ]
+  },
+  {
+    "id": "company_009",
+    "title": "社用PCの紛失",
+    "text": "社員が外出先で社用PCを紛失した。",
+    "condition": "社員が社外で業務を行っている",
+    "probability": 2.5,
+    "choices": [
+      {
+        "label": "遠隔ロック・データ消去を行う",
+        "description": "対応費用が発生するが、情報漏えいのリスクを軽減する。",
+        "effects": { "funds": -30, "reputation": 2 }
+      },
+      {
+        "label": "端末の捜索を優先する",
+        "description": "初期費用を抑えられるが、情報漏えいのリスクが残る。",
+        "effects": { "reputation": -6 }
+      }
+    ]
+  },
+  {
+    "id": "company_010",
+    "title": "メールの誤送信",
+    "text": "顧客に送るメールを誤った宛先に送信した。",
+    "condition": "メールを日常的に使用している",
+    "probability": 5,
+    "choices": [
+      {
+        "label": "相手に連絡し、削除を依頼する",
+        "description": "対応工数が発生するが、情報拡散のリスクを軽減する。",
+        "effects": { "funds": -20, "reputation": -1 }
+      },
+      {
+        "label": "対応せず様子を見る",
+        "description": "追加費用は発生しないが、信用低下や情報漏えいのリスクが増加する。",
+        "effects": { "reputation": -8 }
+      }
+    ]
+  }
+]

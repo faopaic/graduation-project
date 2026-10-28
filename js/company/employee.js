@@ -6,7 +6,9 @@ export function hireEmployee(candidate) {
   updateState((state) => {
     if (
       state.employees.some((employee) => employee.id === candidate.id) ||
-      state.funds < candidate.hireCost
+      state.funds < candidate.hireCost ||
+      !state.availableEmployeeIds.includes(candidate.id) ||
+      state.employeeHiresRemaining <= 0
     ) {
       return state;
     }
@@ -20,11 +22,31 @@ export function hireEmployee(candidate) {
     return {
       ...state,
       funds: state.funds - candidate.hireCost,
-      employees: [...state.employees, { ...candidate }]
+      employees: [...state.employees, { ...candidate }],
+      availableEmployeeIds: state.availableEmployeeIds.filter((id) => id !== candidate.id),
+      employeeHiresRemaining: state.employeeHiresRemaining - 1
     };
   });
 
   return hired;
+}
+
+export function offerEmployeeCandidates(candidates, count = 4, hireLimit = 2) {
+  updateState((state) => {
+    const selected = candidates
+      .filter((candidate) =>
+        !state.employees.some((employee) => employee.id === candidate.id)
+        && !state.availableEmployeeIds.includes(candidate.id)
+      )
+      .sort(() => Math.random() - 0.5)
+      .slice(0, count)
+      .map((candidate) => candidate.id);
+    return {
+      ...state,
+      availableEmployeeIds: selected,
+      employeeHiresRemaining: Math.min(hireLimit, selected.length)
+    };
+  });
 }
 
 export function getTeamPower(state) {

@@ -118,5 +118,17 @@
                       "requiredEmployees":  15,
                       "reputationSuccess":  30,
                       "reputationFailure":  -25
+                  },
+                  {
+                      "id":  "large_011",
+                      "name":  "国家規模クラウド基盤開発",
+                      "description":  "複数の自治体や大企業が利用する、最高水準の可用性と安全性を備えたクラウド基盤を開発する。",
+                      "reward":  12000,
+                      "duration":  18,
+                      "difficulty":  6,
+                      "requiredTechnology":  95,
+                      "requiredEmployees":  18,
+                      "reputationSuccess":  35,
+                      "reputationFailure":  -30
                   }
 ]

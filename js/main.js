@@ -1,9 +1,9 @@
 import { getState, resetState, subscribe, updateState } from "./core/gameState.js";
 import { advanceMonth, hasReachedEnd } from "./core/time.js";
 import { changeFunds, paySalaries } from "./company/company.js";
-import { growEmployees, hireEmployee } from "./company/employee.js";
-import { acceptProject, advanceProjects, completeProjects } from "./project/project.js";
-import { applyEventChoice, chooseEvent, markEventShown, shouldTriggerEvent } from "./event/event.js";
+import { growEmployees, hireEmployee, offerEmployeeCandidates } from "./company/employee.js";
+import { acceptProject, advanceProjects, completeProjects, offerProjects, processMonthlyProjectRewards } from "./project/project.js";
+import { applyEventChoice, chooseEvents, markEventShown } from "./event/event.js";
 import { renderHeader, renderView, setPaginationPage } from "./ui/dashboard.js";
 import { setupNavigation } from "./ui/navigation.js";
 import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
@@ -56,7 +56,7 @@ async function loadData() {
     ...data[5]
   ];
   events = [
-    ...data[6].map((event) => ({ ...event, category: "company" })),
+    ...data[6].map((event) => ({ ...event, category: "incident" })),
     ...data[7].map((event) => ({ ...event, category: "employees" })),
     ...data[8].map((event) => ({ ...event, category: "projects" })),
     ...data[9].map((event) => ({ ...event, category: "random" }))
@@ -69,8 +69,40 @@ function render() {
   renderView(state, projects, employees, events, {
     hire: handleHire,
     accept: handleAccept,
-    changePage: handlePageChange
+    changePage: handlePageChange,
+    restart: restartGame,
+    openRecruitment: openRecruitment,
+    closeRecruitment: closeRecruitment
   });
+  const nextMonthButton = document.querySelector("#next-month-button");
+  if (nextMonthButton) nextMonthButton.disabled = state.gameOver || state.currentView === "recruitment";
+  const pauseButton = document.querySelector("#pause-button");
+  if (pauseButton) pauseButton.disabled = state.currentView === "recruitment";
+}
+
+function openRecruitment() {
+  if (!getState().eventActionUnlocked) return;
+  pauseGameLoop();
+  updateState((state) => ({
+    ...state,
+    previousView: state.currentView,
+    currentView: "recruitment"
+  }));
+  const pauseButton = document.querySelector("#pause-button");
+  if (pauseButton) pauseButton.textContent = "▶ 再開";
+  render();
+}
+
+function closeRecruitment() {
+  updateState((state) => ({
+    ...state,
+    currentView: state.previousView || "employees"
+  }));
+  startGameLoop();
+  const pauseButton = document.querySelector("#pause-button");
+  if (pauseButton) pauseButton.textContent = "Ⅱ 一時停止";
+  render();
+  processPendingEvents();
 }
 
 function handlePageChange(type, page) {
@@ -79,10 +111,21 @@ function handlePageChange(type, page) {
 }
 
 function handleHire(candidateId) {
+  if (!getState().eventActionUnlocked) {
+    showNotification("イベント対応後のみ採用できます。", "warning");
+    return;
+  }
   const candidate = employees.find((employee) => employee.id === candidateId);
   if (!candidate) return;
   if (hireEmployee(candidate)) {
     showNotification(`${candidate.name}さんを採用しました。`, "success");
+    if (getState().employeeHiresRemaining === 0) {
+      updateState((state) => ({ ...state, currentView: "dashboard" }));
+      startGameLoop();
+      const pauseButton = document.querySelector("#pause-button");
+      if (pauseButton) pauseButton.textContent = "Ⅱ 一時停止";
+      processPendingEvents();
+    }
     saveGame();
     render();
   } else {
@@ -91,6 +134,10 @@ function handleHire(candidateId) {
 }
 
 function handleAccept(projectId) {
+  if (!getState().eventActionUnlocked) {
+    showNotification("イベント対応後のみ案件を受注できます。", "warning");
+    return;
+  }
   const project = projects.find((item) => item.id === projectId);
   if (!project) return;
   if (acceptProject(project)) {
@@ -121,8 +168,18 @@ function getFinalRank(state) {
 function advanceGameMonth() {
   const current = getState();
   if (current.gameOver) return;
-  const salary = paySalaries(current);
-  updateState((state) => ({ ...advanceMonth(state), funds: state.funds - salary }));
+  const nextMonth = advanceMonth(current);
+  const salaryPerEmployee = current.salaryPerEmployee ?? 24;
+  const increasedSalary = nextMonth.month === 12 && current.month !== 12
+    ? salaryPerEmployee + 2
+    : salaryPerEmployee;
+  const salaryState = { ...nextMonth, salaryPerEmployee: increasedSalary };
+  const salary = paySalaries(salaryState);
+  updateState((state) => ({ ...salaryState, funds: state.funds - salary, eventActionUnlocked: false }));
+  const paidProjectRewards = processMonthlyProjectRewards();
+  if (paidProjectRewards > 0) {
+    showNotification(`案件の成功報酬${paidProjectRewards.toLocaleString()}万円が支給されました。`, "success");
+  }
   const completed = advanceProjects(projects);
   if (completed.length > 0) {
     completeProjects(completed);
@@ -130,20 +187,70 @@ function advanceGameMonth() {
   }
   growEmployees();
   const next = getState();
-  if (shouldTriggerEvent(next)) {
-    const event = chooseEvent(events, next);
-    if (event) {
-      markEventShown(event.id);
-      showChoiceModal(event, (choice) => {
-        applyEventChoice(choice);
-        saveGame();
-        render();
-      });
-    }
+  const triggeredEvents = chooseEvents(events, next);
+  if (triggeredEvents.length > 0) {
+    updateState((state) => ({
+      ...state,
+      pendingEventIds: [...(state.pendingEventIds ?? []), ...triggeredEvents.map((event) => event.id)]
+    }));
+    processPendingEvents();
+  }
+  if (Math.random() < 0.15 + (next.projectOfferProbabilityBonus ?? 0)) {
+    offerProjects(projects, 2);
   }
   if (hasReachedEnd(next)) finishGame();
   saveGame();
   render();
+}
+
+function processPendingEvents() {
+  const state = getState();
+  if (state.gameOver || state.currentView === "recruitment" || document.querySelector(".event-modal")) return;
+  const pendingEventIds = state.pendingEventIds ?? [];
+  if (pendingEventIds.length === 0) return;
+  const eventId = pendingEventIds[0];
+  const event = events.find((item) => item.id === eventId);
+  if (!event) {
+    updateState((current) => ({ ...current, pendingEventIds: (current.pendingEventIds ?? []).slice(1) }));
+    processPendingEvents();
+    return;
+  }
+  markEventShown(event.id);
+  showChoiceModal(event, (choice) => {
+    applyEventChoice(choice);
+    updateState((current) => ({
+      ...current,
+      pendingEventIds: (current.pendingEventIds ?? []).slice(1)
+    }));
+    closeModal();
+    const isBusinessMeeting = choice.effects?.addProjectOffers;
+    const meetingSucceeded = !isBusinessMeeting || Math.random() >= 0.1;
+    if (isBusinessMeeting && meetingSucceeded) {
+      offerProjects(projects, choice.effects.addProjectOffers);
+      showNotification("商談に成功しました。新しい案件が提示されました。", "success");
+    } else if (isBusinessMeeting) {
+      showNotification("商談に失敗しました。今回は案件を受注できませんでした。", "warning");
+    }
+    if (choice.effects?.hireEmployee) {
+      offerEmployeeCandidates(employees);
+      openRecruitment();
+    } else {
+      render();
+      processPendingEvents();
+    }
+    saveGame();
+  });
+}
+
+function getInitialEmployees() {
+  const initialManagers = employees
+    .filter((employee) => employee.role === "マネージャー")
+    .slice(0, 2);
+  if (initialManagers.length < 2) return initialManagers;
+  return [
+    { ...initialManagers[0], role: "人事部" },
+    initialManagers[1]
+  ];
 }
 
 function restartGame() {
@@ -151,7 +258,7 @@ function restartGame() {
   resetState();
   updateState((state) => ({
     ...state,
-    employees: employees.slice(0, 2)
+    employees: getInitialEmployees()
   }));
   const state = getState();
   addHistoryLog(
@@ -160,6 +267,7 @@ function restartGame() {
     "会社設立",
     "Blue Orbit Systemsを設立した"
   );
+  saveGame();
   render();
 }
 
@@ -170,7 +278,7 @@ async function startGame() {
     if (!loadGame()) {
       updateState((state) => ({
         ...state,
-        employees: employees.slice(0, 2)
+        employees: getInitialEmployees()
       }));
       const state = getState();
 
@@ -227,6 +335,7 @@ async function startGame() {
     document.querySelector("#next-month-button").addEventListener("click", advanceGameMonth);
     subscribe(render);
     render();
+    processPendingEvents();
   } catch (error) {
     document.querySelector("#main-content").innerHTML = `<div class="empty-state"><h2>ゲームを起動できませんでした</h2><p>${error.message} ローカルサーバー経由でindex.htmlを開いてください。</p></div>`;
   }
