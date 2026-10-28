@@ -69,13 +69,34 @@ async function loadData() {
 
 function render() {
   const state = getState();
-  renderHeader(state);
-  renderView(state, projects, employees, events, {
-    hire: handleHire,
-    toggleSales: handleToggleSales,
-    accept: handleAccept,
-    changePage: handlePageChange
-  });
+  const topbar =
+    document.querySelector(".topbar");
+  const statusGrid =
+    document.querySelector(".status-grid");
+  const bottomNav =
+    document.querySelector(".bottom-nav");
+  if (state.currentView === "start") {
+    topbar.style.display = "none";
+    statusGrid.style.display = "none";
+    bottomNav.style.display = "none";
+  } else {
+    topbar.style.display = "";
+    statusGrid.style.display = "";
+    bottomNav.style.display = "";
+    renderHeader(state);
+  }
+  renderView(
+    state,
+    projects,
+    employees,
+    events,
+    {
+      hire: handleHire,
+      toggleSales: handleToggleSales,
+      accept: handleAccept,
+      changePage: handlePageChange
+    }
+  );
 }
 
 function handlePageChange(type, page) {
@@ -240,8 +261,12 @@ function restartGame() {
 async function startGame() {
   try {
     await loadData();
-
-    if (!loadGame()) {
+    const loaded = loadGame();
+    updateState((state) => ({
+      ...state,
+      currentView: "start"
+    }));
+    if (!loaded) {
       updateState((state) => ({
         ...state,
         employees: employees.slice(0, 2)
@@ -367,18 +392,19 @@ function updateTimeProgress(value) {
     `${Math.min(value,100)}%`
   );
 }
-document.addEventListener("click", (event) => {
-  const target = event.target;
-  if (
-    target &&
-    target.id ===
-      "start-company-button"
-  ) {
-    updateState((state) => ({
-      ...state,
-      currentView: "dashboard"
-    }));
-    render();
-  }
-});
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (
+      target &&
+      target.id ===
+        "continue-company-button"
+    ) {
+      loadGame();
+      updateState((state) => ({
+        ...state,
+        currentView: "dashboard"
+      }));
+      render();
+    }
+  });
 startGame();
