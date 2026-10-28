@@ -55,20 +55,21 @@ function renderStartScreen() {
           会社経営シミュレータ
         </h2>
       </div>
-      <div class="start-description">
-        <p>あなたは小さなIT企業の経営者です。</p>
-        <p>社員を採用し、案件を獲得し、評判と技術力を高めながら会社を成長させます。</p>
-        <p>目標は5年間で業界を代表する企業へ成長することです。</p>
-        <p>1ヶ月は45秒で進行します。</p>
+      <div class="start-buttons">
+        <button
+          id="start-company-button"
+          class="primary-button">
+          会社経営を始める
+        </button>
+        <button
+          id="continue-company-button"
+          class="secondary-button">
+          続きから
+        </button>
       </div>
       <p class="start-subtitle">
         IT Company - 会社経営シミュレータ
       </p>
-      <button
-        id="start-company-button"
-        class="primary-button">
-        会社経営を始める
-      </button>
     </section>
   `;
 }
@@ -96,7 +97,8 @@ function renderDashboard(state) {
       </section>
     </aside>
     <section class="dashboard-center">
-      <section class="view-heading"><div><p class="eyebrow">MONTHLY REPORT</p><h2>会社ダッシュボード</h2></div><span class="company-rank">${getCompanyRank(state)}</span></section>
+      <section class="view-heading"><div><p class="eyebrow">MONTHLY REPORT</p><h2>会社ダッシュボード</h2></div><span class="company-rank">${getCompanyRank(state)}</span>
+      </section>
       <div class="hero-panel"><div><p class="eyebrow">今月の重点</p><h2>次の一手が、会社の未来をつくる。</h2><p>案件を受注し、社員の力を活かして信頼を積み上げましょう。</p></div>
       <div class="hero-mark">◈</div></div>
       <div class="summary-grid"><div><span>進行中案件</span><strong>${state.activeProjects.length}件</strong></div>

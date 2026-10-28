@@ -132,3 +132,8 @@
   padding: 16px 40px;
   font-size: 1.1rem;
 }
+.start-buttons{
+  display:flex;
+  gap:16px;
+  margin-top:20px;
+}
