@@ -1,5 +1,6 @@
 [
   {
+<<<<<<< HEAD
     "id": "company_001",
     "title": "優秀な人材の応募",
     "text": "高い技術力を持つエンジニアから応募があった。",
@@ -190,3 +191,41 @@
     ]
   }
 ]
+=======
+    "id": "new_customer_sales",
+    "title": "新規顧客からの営業",
+    "text": "新しい顧客から開発案件を紹介された。",
+    "choices": [
+      { "label": "商談を進める", "description": "営業費用を使い、案件獲得の機会を得る。", "effects": { "funds": -80, "reputation": 4 } },
+      { "label": "断る", "description": "費用は発生しないが、新たな受注機会を失う。", "effects": {} }
+    ]
+  },
+  {
+    "id": "equipment_update",
+    "title": "設備・開発環境の更新",
+    "text": "開発用PCやサーバーの老朽化が問題になっている。",
+    "choices": [
+      { "label": "設備を更新する", "description": "資金を投資し、技術力と開発効率を高める。", "effects": { "funds": -180, "technology": 8, "morale": 3 } },
+      { "label": "更新を見送る", "description": "資金を維持できるが、開発効率が低下する可能性がある。", "effects": { "technology": -3, "morale": -3 } }
+    ]
+  },
+  {
+    "id": "personnel_cost_increase",
+    "title": "人件費の上昇",
+    "text": "人件費の増加により利益が圧迫されている。",
+    "choices": [
+      { "label": "給与体系を見直す", "description": "管理費用を使い、長期的な負担を抑える。", "effects": { "funds": -100, "morale": 5 } },
+      { "label": "現状を維持する", "description": "変更費用は発生しないが、利益が圧迫される。", "effects": { "funds": -150, "morale": -5 } }
+    ]
+  },
+  {
+    "id": "competitor_price_cut",
+    "title": "競合他社の台頭",
+    "text": "競合他社が同種のサービスを低価格で提供し始めた。",
+    "choices": [
+      { "label": "品質向上に投資する", "description": "資金を投資し、評判と受注率を維持する。", "effects": { "funds": -150, "technology": 5, "reputation": 5 } },
+      { "label": "価格を引き下げる", "description": "受注機会は増える可能性があるが、利益率が低下する。", "effects": { "reputation": 2, "funds": -50 } }
+    ]
+  }
+]
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402

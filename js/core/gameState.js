@@ -10,12 +10,20 @@ const INITIAL_STATE = {
   history: [],
   growthMap: [],
   employees: [],
+<<<<<<< HEAD
   availableEmployeeIds: [],
   employeeHiresRemaining: 0,
   salaryPerEmployee: 24,
   salaryAdjustment: 0,
   equipmentLevel: 1,
   equipmentCondition: 100,
+=======
+  salesEmployeeIds: [],
+  offeredProjectIds: [],
+  acceptedProjectIds: [],
+  projectDeadlines: {},
+  projectReofferAt: {},
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402
   activeProjects: [],
   pendingProjectRewards: [],
   qualityInvestmentRewardBonusMonths: 0,
@@ -23,8 +31,12 @@ const INITIAL_STATE = {
   projectOfferProbabilityBonus: 0,
   completedProjects: 0,
   largeProjectsCompleted: 0,
+<<<<<<< HEAD
   currentView: "dashboard",
   previousView: "employees",
+=======
+  currentView: "start",
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402
   gameOver: false,
   finalRank: null,
   lastEventId: null,

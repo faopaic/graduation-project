@@ -34,7 +34,7 @@ export function showFinalModal(state, rank, onRestart) {
         <div class="rank">${rank}</div>
         <p>5年間の会社経営、お疲れさまでした。</p>
         <div class="final-stats">
-          <span>資金<strong>${state.funds.toLocaleString()}万円</strong></span>
+          <span>資金<strong>${formatFunds(state.funds)}万円</strong></span>
           <span>社員<strong>${state.employees.length}人</strong></span>
           <span>評判<strong>${state.reputation}</strong></span>
           <span>大型案件<strong>${state.largeProjectsCompleted}件</strong></span>
@@ -43,4 +43,8 @@ export function showFinalModal(state, rank, onRestart) {
       </section>
     </div>`;
   root.querySelector("[data-restart]").addEventListener("click", onRestart);
+}
+
+function formatFunds(funds) {
+  return Math.round(funds).toLocaleString();
 }

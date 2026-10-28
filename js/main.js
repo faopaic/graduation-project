@@ -1,16 +1,23 @@
 import { getState, resetState, subscribe, updateState } from "./core/gameState.js";
 import { advanceMonth, hasReachedEnd } from "./core/time.js";
 import { changeFunds, paySalaries } from "./company/company.js";
+<<<<<<< HEAD
 import { growEmployees, hireEmployee, offerEmployeeCandidates } from "./company/employee.js";
 import { acceptProject, advanceProjects, completeProjects, offerProjects, processMonthlyProjectRewards } from "./project/project.js";
 import { applyEventChoice, chooseEvents, markEventShown } from "./event/event.js";
+=======
+import { getEmployeeSales, getSalesPower, growEmployees, hireEmployee } from "./company/employee.js";
+import { acceptProject, advanceProjects, completeProjects, expireProjectOffers, generateProjectOffers, getDeadlineMonths, getMonthIndex } from "./project/project.js";
+import { applyEventChoice, chooseEvent, markEventShown, shouldTriggerEvent } from "./event/event.js";
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402
 import { renderHeader, renderView, setPaginationPage } from "./ui/dashboard.js";
 import { setupNavigation } from "./ui/navigation.js";
 import { closeModal, showChoiceModal, showFinalModal } from "./ui/modal.js";
 import { showNotification } from "./ui/notification.js";
-import { loadGame, saveGame } from "./save/save.js";
+import { clearSavedGame, loadGame, saveGame } from "./save/save.js";
 import { addHistoryLog } from "./history/historyManager.js";
 import {initializeGameLoop,startGameLoop,pauseGameLoop,setGameSpeed,isGameRunning} from "./core/gameLoop.js";
+import { updateLatestGrowthCell }from "./core/companyMap.js";
 let projects = [];
 let employees = [];
 let events = [];
@@ -49,7 +56,10 @@ async function loadData() {
     ...data[0],
     ...data[1],
     ...data[2]
-  ];
+  ].map((employee) => ({
+    ...employee,
+    sales: getEmployeeSales(employee)
+  }));
   projects = [
     ...data[3],
     ...data[4],
@@ -68,6 +78,7 @@ function render() {
   renderHeader(state);
   renderView(state, projects, employees, events, {
     hire: handleHire,
+    toggleSales: handleToggleSales,
     accept: handleAccept,
     changePage: handlePageChange,
     restart: restartGame,
@@ -119,6 +130,7 @@ function handleHire(candidateId) {
   if (!candidate) return;
   if (hireEmployee(candidate)) {
     showNotification(`${candidate.name}さんを採用しました。`, "success");
+<<<<<<< HEAD
     if (getState().employeeHiresRemaining === 0) {
       updateState((state) => ({ ...state, currentView: "dashboard" }));
       startGameLoop();
@@ -126,11 +138,46 @@ function handleHire(candidateId) {
       if (pauseButton) pauseButton.textContent = "Ⅱ 一時停止";
       processPendingEvents();
     }
+=======
+    updateState((state) => ({
+      ...state,
+      growthMap:
+        updateLatestGrowthCell(
+          state,
+          "E",
+          `社員採用: ${candidate.name}`
+        )
+    }));
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402
     saveGame();
     render();
   } else {
     showNotification("採用費が不足しています。", "warning");
   }
+}
+
+function handleToggleSales(employeeId) {
+  const employee = getState().employees.find((item) => item.id === employeeId);
+  if (!employee) return;
+  updateState((state) => {
+    const salesEmployeeIds = state.salesEmployeeIds ?? [];
+    const assigned = salesEmployeeIds.includes(employeeId);
+    return {
+      ...state,
+      salesEmployeeIds: assigned
+        ? salesEmployeeIds.filter((id) => id !== employeeId)
+        : [...salesEmployeeIds, employeeId]
+    };
+  });
+  const assigned = getState().salesEmployeeIds.includes(employeeId);
+  showNotification(
+    assigned
+      ? `${employee.name}さんを営業担当にしました。営業力は${getSalesPower(getState())}です。`
+      : `${employee.name}さんを開発担当に戻しました。`,
+    "success"
+  );
+  saveGame();
+  render();
 }
 
 function handleAccept(projectId) {
@@ -168,6 +215,7 @@ function getFinalRank(state) {
 function advanceGameMonth() {
   const current = getState();
   if (current.gameOver) return;
+<<<<<<< HEAD
   const nextMonth = advanceMonth(current);
   const salaryPerEmployee = current.salaryPerEmployee ?? 24;
   const increasedSalary = nextMonth.month === 12 && current.month !== 12
@@ -179,14 +227,60 @@ function advanceGameMonth() {
   const paidProjectRewards = processMonthlyProjectRewards();
   if (paidProjectRewards > 0) {
     showNotification(`案件の成功報酬${paidProjectRewards.toLocaleString()}万円が支給されました。`, "success");
+=======
+  const salary = paySalaries(current);
+  updateState((state) => ({ ...advanceMonth(state), funds: state.funds - salary }));
+  updateState((state) => ({
+    ...state,
+    projectReofferAt: expireProjectOffers(state)
+  }));
+  const offers = generateProjectOffers(projects, getState());
+  if (offers.length > 0) {
+    updateState((state) => ({
+      ...state,
+      offeredProjectIds: [
+        ...(state.offeredProjectIds ?? []),
+        ...offers.map((project) => project.id)
+      ],
+      projectDeadlines: {
+        ...(state.projectDeadlines ?? {}),
+        ...Object.fromEntries(
+          offers.map((project) => [
+            project.id,
+            getMonthIndex(state) + getDeadlineMonths(project)
+          ])
+        )
+      },
+      projectReofferAt: Object.fromEntries(
+        Object.entries(state.projectReofferAt ?? {})
+          .filter(([projectId]) => !offers.some((project) => project.id === projectId))
+      )
+    }));
+    showNotification(`営業の結果、${offers.length}件の案件が提案されました。`, "success");
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402
   }
   const completed = advanceProjects(projects);
   if (completed.length > 0) {
     completeProjects(completed);
+    completed.forEach((project) => {
+      if (!project.success) return;
+      updateState((state) => ({
+        ...state,
+        growthMap:
+          updateLatestGrowthCell(
+            state,
+            project.large ? "L" : "P",
+            project.large
+              ? `大型案件成功: ${project.name}`
+              : `案件成功: ${project.name}`
+          )
+      }));
+    });
     completed.forEach((project) => showNotification(project.success ? `「${project.name}」が完了し、${project.reward}万円を獲得しました。` : `「${project.name}」は失敗しました。評判が低下しました。`, project.success ? "success" : "warning"));
   }
   growEmployees();
   const next = getState();
+<<<<<<< HEAD
   const triggeredEvents = chooseEvents(events, next);
   if (triggeredEvents.length > 0) {
     updateState((state) => ({
@@ -197,6 +291,18 @@ function advanceGameMonth() {
   }
   if (Math.random() < 0.15 + (next.projectOfferProbabilityBonus ?? 0)) {
     offerProjects(projects, 2);
+=======
+  if (shouldTriggerEvent(next)) {
+    const event = chooseEvent(events, next);
+    if (event) {
+      markEventShown(event.id);
+      showChoiceModal(event, (choice) => {
+        applyEventChoice(choice, employees, projects);
+        saveGame();
+        render();
+      });
+    }
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402
   }
   if (hasReachedEnd(next)) finishGame();
   saveGame();
@@ -255,6 +361,7 @@ function getInitialEmployees() {
 
 function restartGame() {
   closeModal();
+  clearSavedGame();
   resetState();
   updateState((state) => ({
     ...state,
@@ -288,6 +395,31 @@ async function startGame() {
         "会社設立",
         "Blue Orbit Systemsを設立した"
       );
+
+      updateState((state) => ({
+        ...state,
+        growthMap: [
+          {
+            year: state.year,
+            month: state.month,
+            calendarYear:
+              state.calendarYear,
+            reputation:
+              state.reputation,
+            technology:
+              state.technology,
+            morale:
+              state.morale,
+            funds:
+              state.funds,
+            completedProjects: 0,
+            activeProjects: 0,
+            symbol: "S",
+            event:
+              "会社設立"
+          }
+        ]
+      }));
     }
 
     setupNavigation(render);
@@ -316,6 +448,20 @@ async function startGame() {
         console.log("4x");
     });
     document
+      .querySelector("#speed-8")
+      .addEventListener("click", () => {
+        setGameSpeed(8);
+        setActiveSpeedButton("#speed-8");
+        console.log("8x");
+    });
+    document
+      .querySelector("#speed-16")
+      .addEventListener("click", () => {
+        setGameSpeed(16);
+        setActiveSpeedButton("#speed-16");
+        console.log("16x");
+    });    
+    document
       .querySelector("#pause-button")
       .addEventListener("click", (event) => {
         console.log(
@@ -335,7 +481,14 @@ async function startGame() {
     document.querySelector("#next-month-button").addEventListener("click", advanceGameMonth);
     subscribe(render);
     render();
+<<<<<<< HEAD
     processPendingEvents();
+=======
+    const state = getState();
+    if (state.gameOver) {
+      showFinalModal(state, state.finalRank ?? getFinalRank(state), restartGame);
+    }
+>>>>>>> a0084d3d0ebb1440d802509c46f10b6248740402
   } catch (error) {
     document.querySelector("#main-content").innerHTML = `<div class="empty-state"><h2>ゲームを起動できませんでした</h2><p>${error.message} ローカルサーバー経由でindex.htmlを開いてください。</p></div>`;
   }
@@ -359,4 +512,18 @@ function updateTimeProgress(value) {
     `${Math.min(value,100)}%`
   );
 }
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (
+    target &&
+    target.id ===
+      "start-company-button"
+  ) {
+    updateState((state) => ({
+      ...state,
+      currentView: "dashboard"
+    }));
+    render();
+  }
+});
 startGame();
