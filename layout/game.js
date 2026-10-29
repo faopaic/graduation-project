@@ -32,7 +32,7 @@ const remainDays = (job) => job.deadline - S.day;
 const monthlyCost = () => S.employees.reduce((s, e) => s + e.salary, 0) + CONFIG.officeCost;
 const newId = () => S.nextId++;
 const addMoney = (n) => { S.money += n; };
-const addRep = (n) => { S.rep = Math.max(0, S.rep + n); };
+const addRep = (n) => { S.rep = clamp(S.rep + n, 0, 100); };   // 評判は 0〜100
 const addProgress = (job, frac) => { job.progress = clamp(job.progress + frac * job.work, 0, job.work * 0.99); };
 const schedule = (afterDays, type, data) => { S.schedule.push(Object.assign({ day: S.day + afterDays, type }, data)); };
 
@@ -343,7 +343,7 @@ function checkLevel() {
   }
 }
 
-// ----- クリア判定 -----
+// ----- 目標とランク -----
 function goalList() {
   const g = CONFIG.goals;
   const list = [
@@ -355,13 +355,17 @@ function goalList() {
   list.forEach((x) => { x.met = x.cur >= x.target; x.ratio = clamp(x.cur / x.target, 0, 1); });
   return list;
 }
-const goalsMet = () => goalList().every((x) => x.met);
+// ランク: 目標を4つすべて達成 = A / 2〜3つ = B / 0〜1つ = C
+function rankOf() {
+  const list = goalList();
+  const n = list.filter((x) => x.met).length;
+  return n === list.length ? 'A' : n >= 2 ? 'B' : 'C';
+}
 
 function checkEnd() {
   if (S.over) return;
   if (S.money < 0) S.over = { type: 'bankrupt' };
-  else if (goalsMet()) S.over = { type: 'clear' };
-  else if (S.day >= CONFIG.totalDays) S.over = { type: 'timeup' };
+  else if (S.day >= CONFIG.totalDays) S.over = { type: 'timeup', rank: rankOf() };
   if (S.over) S.over.day = S.day;
 }
 

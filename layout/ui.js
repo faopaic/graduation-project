@@ -100,7 +100,7 @@ function projectCard(job) {
 
 function levelPanel() {
   const next = LEVELS[S.level];
-  if (!next) return '<div class="panel"><div class="panel-title">会社Lv.3 に成長した</div><div class="small">席が8つ、案件は同時に4件まで受けられる。</div></div>';
+  if (!next) return `<div class="panel"><div class="panel-title">会社Lv.3 に成長した</div><div class="small">席が${levelInfo().slots}つ、案件は同時に${levelInfo().jobs}件まで受けられる。</div></div>`;
   return `<div class="panel"><div class="panel-title">次の会社Lv.${next.lv}まで(席${next.slots}つ、案件${next.jobs}件)</div>
     <div class="goal-row"><span>評判</span><span>${S.rep} / ${next.needRep}</span></div>${seg(S.rep, next.needRep, 10)}
     <div class="goal-row"><span>案件の完了</span><span>${Math.min(S.done, next.needDone)} / ${next.needDone}</span></div>${seg(S.done, next.needDone, next.needDone)}</div>`;
@@ -108,7 +108,7 @@ function levelPanel() {
 
 function goalPanel() {
   const rows = goalList().map((g) => `<div class="goal-row"><span>${g.met ? '■' : '□'} ${g.label}</span><span>${g.fmt(g.cur)} / ${g.fmt(g.target)}</span></div>${seg(g.cur, g.target, 10)}`).join('');
-  return `<div class="panel"><div class="panel-title">クリア条件(5年以内に、すべて達成)</div>${rows}</div>`;
+  return `<div class="panel"><div class="panel-title">目標(5年後の成績で、ランクが決まる)</div>${rows}</div>`;
 }
 
 function missionPanel() {
@@ -251,13 +251,14 @@ function showTitle() {
   const g = CONFIG.goals;
   $('screen-body').innerHTML = `<h1 class="big-title">IT会社経営シミュレーター(仮)</h1>
     <p>あなたは、できたばかりのIT会社の社長。5年のあいだに、会社を大きく育てよう。</p>
-    <div class="panel"><div class="panel-title">クリア条件(5年以内に、すべて達成)</div>
+    <div class="panel"><div class="panel-title">目標(5年後の成績で、ランクが決まる)</div>
       <div class="goal-row"><span>資金</span><span>${yen(g.money)}</span></div>
       <div class="goal-row"><span>評判</span><span>${g.rep}</span></div>
       <div class="goal-row"><span>従業員</span><span>${g.staff}人</span></div>
-      <div class="goal-row"><span>大規模案件(難易度 高)の成功</span><span>${g.big}件</span></div></div>
+      <div class="goal-row"><span>大規模案件(難易度 高)の成功</span><span>${g.big}件</span></div>
+      <p class="small muted gap-top">目標を4つすべて達成するとランクA、2〜3つでB、0〜1つでC。</p></div>
     <ol class="steps"><li>「案件」で仕事を受注する</li><li>社員を割り振って、「再生」で時間を進める</li><li>起きた障害に、どう対応するか決める</li><li>お金がたまったら、「採用」と「投資」で会社を強くする</li></ol>
-    <p class="small muted">資金が0を下回るとゲームオーバー。障害への対応しだいで、評判も資金も変わる。</p>
+    <p class="small muted">5年間たっぷり経営して、最後にランクが出る。資金が0を下回ると、その場でゲームオーバー。</p>
     <button class="btn-main" data-act="start">ゲームスタート</button>`;
   $('screen').classList.remove('hidden');
   $('modal').classList.add('hidden');
@@ -267,30 +268,40 @@ function showEnd() {
   screenMode = 'end';
   const o = S.over;
   const goals = goalList();
-  const years = (S.day / 365).toFixed(1);
-  let title, lead;
-  if (o.type === 'clear') { title = 'ゲームクリア!'; lead = `${years}年で、すべての目標を達成した。会社は大きく成長した。`; }
-  else if (o.type === 'bankrupt') { title = 'ゲームオーバー'; lead = `${dateLabel(o.day)}、資金が尽きて、会社を続けられなくなった。`; }
-  else {
-    const avg = goals.reduce((s, g) => s + g.ratio, 0) / goals.length;
-    const rank = avg >= 0.85 ? 'A' : avg >= 0.6 ? 'B' : 'C';
-    title = `5年が経った(評価 ${rank})`; lead = '5年のうちに、すべての目標は達成できなかった。でも、ここまで会社を育てた。';
-  }
+  const g = CONFIG.goals;
   const t = S.tally;
+
+  let title, lead, rankHtml = '';
+  if (o.type === 'bankrupt') {
+    title = 'ゲームオーバー';
+    lead = `${dateLabel(o.day)}、資金が尽きて、会社を続けられなくなった。`;
+  } else {
+    title = '5年が経った';
+    lead = { A: '目標をすべて達成した。会社は大きく成長した。', B: '目標のいくつかを達成した。あと一歩で、さらに大きくできる。', C: '5年が経った。目標の達成は、これからだ。' }[o.rank];
+    rankHtml = `<div class="rank rank-${o.rank}"><b>${o.rank}</b><div><div class="small muted">ランク</div><div>${lead}</div></div></div>`;
+  }
+
   let style;
   if (t.incidents === 0) style = 'まだ障害を経験していない。';
   else if (t.hide === 0) style = `障害に${t.incidents}回対応して、一度も隠さなかった。誠実な社長。`;
   else if (t.hide >= t.honest) style = `障害${t.incidents}回のうち、${t.hide}回は隠す選択をした。実際の会社では、信頼を失う原因になる。`;
   else style = `障害${t.incidents}回のうち、${t.hide}回は隠す選択をした。隠した障害は、あとで見つかることが多い。`;
 
-  const rows = goals.map((g) => `<tr class="${g.met ? 'met' : ''}"><td>${g.met ? '■' : '□'} ${g.label}</td><td>${g.fmt(g.cur)} / ${g.fmt(g.target)}</td></tr>`).join('');
-  $('screen-body').innerHTML = `<div class="modal-head"><span class="badge badge-${o.type === 'clear' ? 'low' : o.type === 'bankrupt' ? 'high' : 'mid'}">結果</span></div>
-    <h1 class="big-title">${title}</h1><p>${lead}</p>
-    <table class="stats">${rows}
-      <tr><td>完成させた案件</td><td>${S.done}件</td></tr>
-      <tr><td>対応した障害</td><td>${t.incidents}回(隠した: ${t.hide}回)</td></tr>
-      <tr><td>会社Lv</td><td>${S.level}</td></tr></table>
-    <div class="lesson"><div class="small muted">あなたの判断</div>${style}</div>
+  const mark = (k) => (goals.find((x) => x.key === k).met ? '■' : '□');
+  $('screen-body').innerHTML = `<div class="modal-head"><span class="badge badge-${o.type === 'bankrupt' ? 'high' : 'low'}">結果</span><span class="small muted">${dateLabel(o.day)}</span></div>
+    <h1 class="big-title">${title}</h1>
+    ${rankHtml}
+    ${o.type === 'bankrupt' ? `<p>${lead}</p>` : ''}
+    <table class="stats">
+      <tr class="${mark('money') === '■' ? 'met' : ''}"><td>${mark('money')} 資金</td><td>${yen(S.money)} / ${yen(g.money)}</td></tr>
+      <tr class="${mark('rep') === '■' ? 'met' : ''}"><td>${mark('rep')} 評判</td><td>${S.rep} / ${g.rep}</td></tr>
+      <tr class="${mark('staff') === '■' ? 'met' : ''}"><td>${mark('staff')} 従業員数</td><td>${S.employees.length}人 / ${g.staff}人</td></tr>
+      <tr><td>　 完成させた案件数</td><td>${S.done}件</td></tr>
+      <tr class="${mark('big') === '■' ? 'met' : ''}"><td>${mark('big')} 大規模案件の成功数</td><td>${S.big}件 / ${g.big}件</td></tr>
+      <tr><td>　 会社Lv(上限あり)</td><td>Lv.${S.level} / Lv.${LEVELS.length}</td></tr>
+    </table>
+    <p class="small muted">■は、目標を達成した項目。4つ達成でA、2〜3つでB、0〜1つでC。</p>
+    <div class="lesson"><div class="small muted">あなたの判断</div>${style}(障害に対応した回数: ${t.incidents}回、隠した回数: ${t.hide}回)</div>
     <button class="btn-main" data-act="restart">もう一度あそぶ</button>`;
   $('screen').classList.remove('hidden');
   $('modal').classList.add('hidden');

@@ -529,6 +529,29 @@ button:focus-visible {
 .stats td:last-child { text-align: right; }
 .stats .met td:last-child { color: var(--ok); }
 
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0;
+}
+
+.rank b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 92px;
+  height: 92px;
+  border: var(--line);
+  font-size: 60px;
+  line-height: 1;
+}
+
+.rank-A b { background: var(--hl); }
+.rank-B b { background: var(--main); }
+.rank-C b { background: var(--bg); }
+
 .big-title {
   margin: 4px 0 8px;
   font-size: 22px;

@@ -15,7 +15,7 @@ const CONFIG = {
     { label: 'x4', ms: 100 }
   ],
   defaultSpeed: 0,
-  goals: { money: 70000000, rep: 100, staff: 7, big: 3 },   // クリア条件
+  goals: { money: 150000000, rep: 100, staff: 10, big: 5 },   // 5年後の評価の目標(4つ達成でA、2〜3つでB、0〜1つでC)
   incidentGap: [35, 60],    // 障害が起きる間隔(日)
   firstIncidentDay: 12      // 最初の障害は、案件があればこの日以降に起きる
 };
@@ -41,8 +41,8 @@ const SALARY = { 1: 220000, 2: 300000, 3: 400000 };   // レベル別の月給
 // 会社のレベル。slots = 社員の席の数、jobs = 同時に受けられる案件の数
 const LEVELS = [
   { lv: 1, slots: 4, jobs: 2 },
-  { lv: 2, slots: 6, jobs: 3, needRep: 50, needDone: 2 },
-  { lv: 3, slots: 8, jobs: 4, needRep: 100, needDone: 5 }
+  { lv: 2, slots: 8, jobs: 4, needRep: 50, needDone: 2 },
+  { lv: 3, slots: 12, jobs: 5, needRep: 100, needDone: 5 }
 ];
 
 const START_STAFF = [
