@@ -76,6 +76,7 @@ function render() {
   const bottomNav =
     document.querySelector(".bottom-nav");
   if (state.currentView === "start") {
+    pauseGameLoop();
     topbar.style.display = "none";
     statusGrid.style.display = "none";
     bottomNav.style.display = "none";
@@ -309,7 +310,6 @@ async function startGame() {
     setupNavigation(render);
     
     initializeGameLoop(advanceGameMonth,updateTimeProgress);
-    startGameLoop();
     document
       .querySelector("#speed-1")
       .addEventListener("click", () => {
@@ -392,19 +392,60 @@ function updateTimeProgress(value) {
     `${Math.min(value,100)}%`
   );
 }
-  document.addEventListener("click", (event) => {
-    const target = event.target;
-    if (
-      target &&
-      target.id ===
-        "continue-company-button"
-    ) {
-      loadGame();
-      updateState((state) => ({
-        ...state,
-        currentView: "dashboard"
-      }));
-      render();
-    }
-  });
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!target) return;
+  if (
+    target.id ===
+    "start-company-button"
+  ) {
+    clearSavedGame();
+    resetState();
+    updateState((state) => ({
+      ...state,
+      employees: employees.slice(0, 2)
+    }));
+    const state = getState();
+    addHistoryLog(
+      state,
+      "company",
+      "会社設立",
+      "Blue Orbit Systemsを設立した"
+    );
+    updateState((state) => ({
+      ...state,
+      growthMap: [
+        {
+          year: state.year,
+          month: state.month,
+          calendarYear: state.calendarYear,
+          reputation: state.reputation,
+          technology: state.technology,
+          morale: state.morale,
+          funds: state.funds,
+          completedProjects: 0,
+          activeProjects: 0,
+          symbol: "S",
+          event: "会社設立",
+          events: ["会社設立"]
+        }
+      ],
+      currentView: "dashboard"
+    }));
+    startGameLoop();
+    render();
+  }
+  if (
+    target.id ===
+    "continue-company-button"
+  ) {
+    loadGame();
+    updateState((state) => ({
+      ...state,
+      currentView: "dashboard"
+    }));
+    startGameLoop();
+    render();
+  }
+});
 startGame();
