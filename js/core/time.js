@@ -1,4 +1,4 @@
-import { getGrowthMap }from "./companyMap.js";
+import { addGrowthCell }from "./companyMap.js";
 export const LAST_YEAR = 5;
 
 export function formatDate(state) {
@@ -6,19 +6,15 @@ export function formatDate(state) {
 }
 
 export function advanceMonth(state) {
-
   let month = state.month + 1;
   let year = state.year;
   let calendarYear = state.calendarYear;
-
   if (month > 12) {
     month = 1;
     year += 1;
     calendarYear += 1;
   }
-
   let quarter = 1;
-
   if (month >= 4 && month <= 6) {
     quarter = 1;
   } else if (month >= 7 && month <= 9) {
@@ -28,7 +24,6 @@ export function advanceMonth(state) {
   } else {
     quarter = 4;
   }
-
   const nextState = {
     ...state,
     month,
@@ -36,10 +31,21 @@ export function advanceMonth(state) {
     calendarYear,
     quarter
   };
+  let symbol = "";
+  let event = "";
+  if (month === 1) {
+    symbol = "Y";
+    event =
+      `創業${year}年目`;
+  }
+  const growthMap =addGrowthCell(
+    nextState,
+    symbol,
+    event
+  );
   return {
     ...nextState,
-    growthMap:
-      getGrowthMap(nextState)
+    growthMap
   };
 }
 
