@@ -63,6 +63,7 @@ function newGame() {
     log: [], notices: [], marks: [],
     tally: { honest: 0, hide: 0, incidents: 0 },
     counts: { accepted: 0, hired: 0, handled: 0 },
+    stats: { promos: 0, learned: 0 },
     nextId: 1, playing: false, speedIdx: CONFIG.defaultSpeed
   };
   START_STAFF.forEach((s) => addEmployee(s.name, s.skill, s.lv));
@@ -73,9 +74,60 @@ function newGame() {
 }
 
 function addEmployee(name, skill, lv) {
-  const e = { id: newId(), name, skill, lv, salary: SALARY[lv], job: null, absentUntil: 0, coveredUntil: 0 };
+  const e = {
+    id: newId(), name, skill, lv, salary: SALARY[lv], job: null, absentUntil: 0, coveredUntil: 0,
+    skills: [skill],                                   // できるスキル(本職 + 覚えたもの)
+    exp: lv === 1 ? 0 : CONFIG.levelExp[lv],           // 案件で働いた日数
+    learn: {}                                          // スキルごとの勉強の進み具合(日数)
+  };
   S.employees.push(e);
   return e;
+}
+
+// ----- 社員の成長 -----
+const xpPct = (e) => {
+  if (e.lv >= 3) return 100;
+  const prev = e.lv === 1 ? 0 : CONFIG.levelExp[e.lv];
+  const next = CONFIG.levelExp[e.lv + 1];
+  return clamp(Math.floor((e.exp - prev) / (next - prev) * 100), 0, 100);
+};
+function growText(e) {
+  let t = e.lv >= 3 ? 'Lv.3(最高)' : `経験 ${xpPct(e)}% → Lv.${e.lv + 1}`;
+  let best = null;
+  Object.keys(e.learn).forEach((sk) => { if (!best || e.learn[sk] > e.learn[best]) best = sk; });
+  if (best && !e.skills.includes(best) && e.skills.length < CONFIG.maxSkills) t += ` / ${SKILLS[best]}を勉強中 ${Math.floor(e.learn[best] / CONFIG.learnDays * 100)}%`;
+  return t;
+}
+const skillsLabel = (e) => e.skills.map((sk) => SKILLS[sk]).join('・');
+
+// 案件で働いた社員は、経験がたまり、昇進したり、新しいスキルを覚えたりする
+function trainStaff(job) {
+  job.staff.forEach((id) => {
+    const e = empById(id);
+    if (!e || !isWorking(e)) return;
+    e.exp++;
+    if (e.lv < 3 && e.exp >= CONFIG.levelExp[e.lv + 1]) {
+      e.lv++;
+      e.salary = SALARY[e.lv];
+      S.stats.promos++;
+      S.dirty = true;
+      log(`${e.name}が Lv.${e.lv} に昇進した(月給 ${yen(e.salary)})`, 'good');
+      notify(`${e.name}が Lv.${e.lv} に昇進した。月給が${yen(e.salary)}に上がった`, 'good');
+    }
+    if (e.skills.length < CONFIG.maxSkills) {
+      job.skills.forEach((sk) => {
+        if (e.skills.includes(sk) || e.skills.length >= CONFIG.maxSkills) return;
+        e.learn[sk] = (e.learn[sk] || 0) + 1;
+        if (e.learn[sk] >= CONFIG.learnDays) {
+          e.skills.push(sk);
+          S.stats.learned++;
+          S.dirty = true;
+          log(`${e.name}が「${SKILLS[sk]}」もできるようになった`, 'good');
+          notify(`${e.name}が「${SKILLS[sk]}」もできるようになった!`, 'good');
+        }
+      });
+    }
+  });
 }
 
 // ----- 案件の募集 -----
@@ -139,14 +191,39 @@ function toggleAssign(jobId, empId) {
 function autoAssign() {
   const idle = S.employees.filter((e) => !e.job).sort((a, b) => b.lv - a.lv);
   idle.forEach((e) => {
-    const covered = (job, sk) => job.staff.some((id) => empById(id).skill === sk);
-    const needing = S.jobs.filter((j) => j.skills.includes(e.skill) && !covered(j, e.skill));
-    const fitting = S.jobs.filter((j) => j.skills.includes(e.skill));
+    const covered = (job, sk) => job.staff.some((id) => empById(id).skills.includes(sk));
+    const needing = S.jobs.filter((j) => j.skills.some((sk) => e.skills.includes(sk) && !covered(j, sk)));
+    const fitting = S.jobs.filter((j) => j.skills.some((sk) => e.skills.includes(sk)));
     // 合う案件がなければ、人手が少ない案件を手伝う(スキルが合わないので、力は半分)
     const target = needing[0]
       || fitting.sort((a, b) => a.staff.length - b.staff.length)[0]
       || S.jobs.slice().sort((a, b) => a.staff.length - b.staff.length)[0];
     if (target) assign(target, e);
+  });
+  S.dirty = true;
+}
+
+// 「おまかせ配置」ボタン: 全員を配置し直して、進行中のすべての案件に人を入れる
+function autoAssignAll() {
+  if (!S.jobs.length) return;
+  S.employees.forEach((e) => unassign(e));
+  const left = () => S.employees.filter((e) => !e.job).sort((a, b) => b.lv - a.lv);
+  const covered = (job, sk) => job.staff.some((id) => empById(id).skills.includes(sk));
+  const urgent = S.jobs.slice().sort((a, b) => (a.deadline - S.day) - (b.deadline - S.day));
+  // 1) まず、どの案件にも1人ずつ(納期が近い案件から、合うスキルの人を優先)
+  urgent.forEach((job) => {
+    const pool = left();
+    if (!pool.length) return;
+    const e = pool.find((x) => job.skills.some((sk) => x.skills.includes(sk))) || pool[pool.length - 1];
+    assign(job, e);
+  });
+  // 2) 残りの人は、足りないスキルがある案件 → 仕事が多く残っている案件の順に入れる
+  left().forEach((e) => {
+    const remain = (j) => (j.work - j.progress) / Math.max(1, j.staff.length);
+    const needing = S.jobs.filter((j) => j.skills.some((sk) => e.skills.includes(sk) && !covered(j, sk)));
+    const fitting = S.jobs.filter((j) => j.skills.some((sk) => e.skills.includes(sk)));
+    const pool = needing.length ? needing : fitting.length ? fitting : S.jobs;
+    assign(pool.slice().sort((a, b) => remain(b) - remain(a))[0], e);
   });
   S.dirty = true;
 }
@@ -192,11 +269,18 @@ function buyInvest(key) {
 }
 
 // ----- 1日ぶんの進行 -----
+// 本職のスキルが合えば1、覚えたスキルが合えば0.8、合わなければ0.5(手伝うだけ)
+function skillFit(e, job) {
+  if (job.skills.includes(e.skill)) return 1;
+  if (job.skills.some((sk) => e.skills.includes(sk))) return CONFIG.learnedPower;
+  return 0.5;
+}
+
 function jobPower(job) {
   let p = 0;
   job.staff.forEach((id) => {
     const e = empById(id);
-    if (e && isWorking(e)) p += e.lv * (job.skills.includes(e.skill) ? 1 : 0.5);
+    if (e && isWorking(e)) p += e.lv * skillFit(e, job);
   });
   if (S.boost[job.id] && S.day < S.boost[job.id]) p *= 1.4;
   return p;
@@ -214,6 +298,7 @@ function tick() {
   // 開発の進行
   S.jobs.slice().forEach((job) => {
     job.progress += jobPower(job);
+    trainStaff(job);
     if (job.progress >= job.work) { completeJob(job); return; }
     const left = job.deadline - S.day;
     if (!job.late && left < 0) {
@@ -285,7 +370,7 @@ function makeIncident(forceId) {
 // ----- 案件の完成 -----
 function completeJob(job) {
   const staff = job.staff.map(empById).filter(Boolean);
-  const have = new Set(staff.map((e) => e.skill));
+  const have = new Set(staff.flatMap((e) => e.skills));
   const missing = job.skills.filter((sk) => !have.has(sk));
   const covered = job.skills.length - missing.length;
 

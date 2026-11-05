@@ -10,12 +10,17 @@ const CONFIG = {
   officeCost: 80000,        // 毎月の運営費
   paydayOfMonth: 25,        // 給料日
   speeds: [
-    { label: 'x1', ms: 400 },   // 1日 = 0.4秒
-    { label: 'x2', ms: 200 },
-    { label: 'x4', ms: 100 }
+    { label: 'x1', ms: 800 },   // 1日 = 0.8秒(ゆっくり)
+    { label: 'x2', ms: 400 },
+    { label: 'x4', ms: 200 },
+    { label: 'x8', ms: 100 }
   ],
   defaultSpeed: 0,
-  goals: { money: 150000000, rep: 100, staff: 10, big: 5 },   // 5年後の評価の目標(4つ達成でA、2〜3つでB、0〜1つでC)
+  goals: { money: 250000000, rep: 100, staff: 10, big: 10 },   // 5年後の評価の目標(4つ達成でA、2〜3つでB、0〜1つでC)
+  levelExp: { 2: 240, 3: 720 },   // 社員が昇進するのに必要な、案件で働いた日数(累計)
+  learnDays: 240,           // 自分のスキルと違う案件を手伝って、新しいスキルを覚えるまでの日数
+  maxSkills: 2,             // 1人が覚えられるスキルの数
+  learnedPower: 0.8,        // 覚えたスキルの力(本職は1.0)
   incidentGap: [35, 60],    // 障害が起きる間隔(日)
   firstIncidentDay: 12      // 最初の障害は、案件があればこの日以降に起きる
 };
@@ -36,7 +41,7 @@ const SKILL_HELP = {
   security: '情報漏えいを防ぐ人'
 };
 
-const SALARY = { 1: 220000, 2: 300000, 3: 400000 };   // レベル別の月給
+const SALARY = { 1: 220000, 2: 320000, 3: 460000 };   // レベル別の月給
 
 // 会社のレベル。slots = 社員の席の数、jobs = 同時に受けられる案件の数
 const LEVELS = [

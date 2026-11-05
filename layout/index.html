@@ -15,7 +15,7 @@
 
   <!-- 上部ステータス -->
   <header class="hud">
-    <div class="hud-title">株式会社サンプル <span class="tag" id="h-level">会社Lv.1</span></div>
+    <div class="hud-title" data-go="town" title="街の画面にもどる">株式会社サンプル <span class="tag" id="h-level">会社Lv.1</span></div>
     <div class="hud-items">
       <span>資金 <b id="h-money"></b> <span class="small muted" id="h-cost"></span></span>
       <span>評判 <b id="h-rep"></b></span>
@@ -40,8 +40,12 @@
 
   <main class="main">
 
-    <!-- ホーム -->
-    <section class="page" id="page-home">
+    <!-- 街(最初の画面) -->
+    <section class="page" id="page-town"><div id="town-body"></div></section>
+
+    <!-- 会社の中(会社をクリックすると表示) -->
+    <section class="page hidden" id="page-company">
+      <div class="row"><h2 class="company-title">会社の中</h2><button class="btn-small" data-go="town">← 街にもどる</button></div>
       <div id="home-alerts"></div>
       <div class="home-grid">
         <div>
@@ -60,8 +64,8 @@
     <!-- 案件選択 -->
     <section class="page hidden" id="page-jobs"><div id="jobs-body"></div></section>
 
-    <!-- 採用選択 -->
-    <section class="page hidden" id="page-hire"><div id="hire-body"></div></section>
+    <!-- 社員(採用も、ここ) -->
+    <section class="page hidden" id="page-staff"><div id="staff-body"></div></section>
 
     <!-- 投資 -->
     <section class="page hidden" id="page-invest"><div id="invest-body"></div></section>
@@ -70,9 +74,8 @@
 
   <!-- 下部メニュー -->
   <nav class="bottom-nav">
-    <button class="nav active" data-go="home">ホーム</button>
     <button class="nav" data-go="jobs">案件</button>
-    <button class="nav" data-go="hire">採用</button>
+    <button class="nav" data-go="staff">社員</button>
     <button class="nav" data-go="invest">投資</button>
   </nav>
 

@@ -127,7 +127,7 @@ button:focus-visible {
   border-bottom: var(--line);
 }
 
-.hud-title { font-size: 15px; }
+.hud-title { font-size: 15px; cursor: pointer; }
 
 .tag {
   margin-left: 6px;
@@ -242,6 +242,20 @@ button:focus-visible {
   color: var(--muted);
   font-size: 12px;
   cursor: pointer;
+}
+
+.seat-info { flex: 1; min-width: 0; }
+
+.xpbar {
+  height: 6px;
+  margin: 4px 0 2px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+
+.xpbar > div {
+  height: 100%;
+  background: var(--sky);
 }
 
 /* ===== ドット絵の社員 ===== */
@@ -427,7 +441,7 @@ button:focus-visible {
 /* ===== 下部メニュー(ボタンごとに色分け) ===== */
 .bottom-nav {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   padding: 10px 14px;
   border-top: var(--line);
@@ -442,7 +456,6 @@ button:focus-visible {
 .nav:nth-child(1) { background: var(--main); }
 .nav:nth-child(2) { background: var(--sub); }
 .nav:nth-child(3) { background: var(--hl); }
-.nav:nth-child(4) { background: var(--paper); }
 
 .nav.active {
   border-bottom-width: 2px;
@@ -602,3 +615,42 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ===== 街の画面 ===== */
+.company-title { margin: 0 0 10px; }
+.town-scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: var(--line);
+  background: var(--sky);
+  shape-rendering: crispEdges;
+}
+.town-scene text { font-family: 'DotGothic16', sans-serif; }
+.town-scene .company { cursor: pointer; }
+.town-scene .company:hover .roof { fill: var(--hl); }
+.town-scene .skin { fill: #f8cdbb; }
+.town-scene .hair, .town-scene .legs { fill: var(--ink); }
+.town-scene .b-design { fill: var(--main); }
+.town-scene .b-dev { fill: var(--sub); }
+.town-scene .b-test { fill: var(--hl); }
+.town-scene .b-infra { fill: var(--sky); }
+.town-scene .b-security { fill: var(--lav); }
+.walker { animation: walk var(--t, 20s) linear infinite alternate; animation-delay: var(--delay, 0s); }
+@keyframes walk { from { transform: translateX(0); } to { transform: translateX(var(--w, 60px)); } }
+.bounce { animation: bob 1.2s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-1.5px); } }
+.town-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+.town-menu { display: flex; justify-content: flex-end; margin-top: 8px; }
+@media (max-width: 700px) {
+  .town-grid { grid-template-columns: 1fr; }
+}
+.emp-tip { display: none; pointer-events: none; }
+.walker:hover .emp-tip { display: block; }
+.walker { cursor: help; }
+#town-level { margin-top: 12px; }
