@@ -60,7 +60,7 @@ function newGame() {
     invest: { backup: 0, security: 0, qa: 0 },
     boost: {}, schedule: [], queue: [], pending: null, over: null, dirty: true,
     nextIncidentDay: CONFIG.firstIncidentDay, nextOfferDay: 14, nextCandDay: 60, firstDone: false,
-    log: [], notices: [], marks: [],
+    log: [], notices: [], marks: [], history: [{ day: 0, money: CONFIG.startMoney, rep: CONFIG.startRep }], turns: [], lvFx: false,
     tally: { honest: 0, hide: 0, incidents: 0 },
     counts: { accepted: 0, hired: 0, handled: 0 },
     stats: { promos: 0, learned: 0 },
@@ -69,7 +69,7 @@ function newGame() {
   START_STAFF.forEach((s) => addEmployee(s.name, s.skill, s.lv));
   ['web', 'lp', 'inv'].forEach((id) => newOffer(id));
   refreshCandidates();
-  log('株式会社サンプルを設立した。まずは案件を受注しよう。');
+  log('会社を設立した。まずは案件を受注しよう。');
   return S;
 }
 
@@ -290,6 +290,7 @@ function tick() {
   if (!S || S.over || S.pending) return;
   S.day++;
   const date = dateOf(S.day);
+  if (S.day % 15 === 0) S.history.push({ day: S.day, money: S.money, rep: S.rep });
 
   S.employees.forEach((e) => {
     if (e.absentUntil > 0 && S.day === e.absentUntil) { S.dirty = true; log(`${e.name}が復帰した`); }
@@ -419,6 +420,8 @@ function checkLevel() {
   if (next && S.rep >= next.needRep && S.done >= next.needDone) {
     S.level++;
     S.dirty = true;
+    S.lvFx = true;
+    S.turns.push({ day: S.day, kind: 'level', title: `会社が Lv.${S.level} に成長`, note: `評判${S.rep}・完成${S.done}件で成長した` });
     log(`会社が Lv.${S.level} になった`, 'good');
     raise({
       kind: 'notice', badge: 'レベルアップ', title: `会社が Lv.${S.level} に成長した`,
@@ -451,7 +454,7 @@ function checkEnd() {
   if (S.over) return;
   if (S.money < 0) S.over = { type: 'bankrupt' };
   else if (S.day >= CONFIG.totalDays) S.over = { type: 'timeup', rank: rankOf() };
-  if (S.over) S.over.day = S.day;
+  if (S.over) { S.over.day = S.day; S.history.push({ day: S.day, money: S.money, rep: S.rep }); }
 }
 
 // ----- 決断画面で選んだとき -----
@@ -466,6 +469,7 @@ function resolve(idx) {
     S.counts.handled++;
     if (c.tag === 'hide') S.tally.hide++;
     if (c.tag === 'honest') S.tally.honest++;
+    S.turns.push({ day: S.day, kind: 'incident', tag: c.tag, title: p.badge, label: c.label });
   }
   S.dirty = true;
   checkEnd();

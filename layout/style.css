@@ -540,7 +540,7 @@ button:focus-visible {
 }
 
 .stats td:last-child { text-align: right; }
-.stats .met td:last-child { color: var(--ok); }
+.stats .met td:nth-child(2) { color: var(--ok); }
 
 .rank {
   display: flex;
@@ -654,3 +654,97 @@ button:focus-visible {
 .walker:hover .emp-tip { display: block; }
 .walker { cursor: help; }
 #town-level { margin-top: 12px; }
+
+/* ===== 季節・紙吹雪・スタンプ ===== */
+.fall { animation: sway 5s ease-in-out infinite alternate; }
+@keyframes sway { from { transform: translate(0, 0); } to { transform: translate(-3px, 4px); } }
+.confetti { position: fixed; inset: 0; z-index: 999; pointer-events: none; overflow: hidden; }
+.confetti i {
+  position: absolute; top: -14px; width: var(--s); height: var(--s); background: var(--c);
+  animation: cf var(--d) linear var(--dl) forwards;
+}
+@keyframes cf { to { transform: translate(var(--dx), 108vh) rotate(540deg); } }
+.hire-stamp {
+  position: fixed; top: 38%; left: 50%; z-index: 998; pointer-events: none;
+  padding: 6px 20px; border: 6px solid #d6453a; color: #d6453a; background: rgba(255,255,255,.7);
+  font-size: 44px; font-weight: bold; transform: translate(-50%, -50%) rotate(-12deg);
+  animation: stamp 1.4s ease-out forwards;
+}
+@keyframes stamp { 0% { transform: translate(-50%, -50%) rotate(-12deg) scale(3); opacity: 0; } 20% { transform: translate(-50%, -50%) rotate(-12deg) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+.overlay-light { background: rgba(46, 80, 74, 0.18); align-items: flex-end; }
+
+/* ===== 案件カード(ポスター風) ===== */
+.offer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.offer { border: var(--line); background: var(--paper); padding: 0 0 10px; display: flex; flex-direction: column; }
+.offer > *:not(.offer-head) { margin-left: 12px; margin-right: 12px; }
+.offer-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: var(--line); font-size: 15px; }
+.offer-web .offer-head { background: var(--sky); }
+.offer-app .offer-head { background: var(--main); }
+.offer-sys .offer-head { background: var(--lav); }
+.offer-big .offer-head { background: var(--hl); }
+.offer-tag { padding: 0 8px; border: var(--line-thin); background: var(--paper); font-size: 11px; white-space: nowrap; }
+.offer-big { margin-top: 6px; text-align: center; font-size: 12px; color: var(--alert-ink, #c2453a); }
+.offer-row { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+.offer-row .muted { min-width: 48px; }
+.offer-reward { font-size: 20px; color: var(--ok); }
+.offer .req { margin-top: 8px; }
+.offer-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; }
+.offer.locked { background: var(--bg); border-style: dashed; }
+.offer-lock { font-size: 12px; padding: 4px 8px; border: var(--line-thin); background: var(--paper); }
+@media (max-width: 700px) { .offer-grid { grid-template-columns: 1fr; } }
+
+/* ===== 履歴書 ===== */
+.resume-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.resume { border: var(--line); background: #fffdf4; display: flex; flex-direction: column; gap: 6px; padding-bottom: 12px; }
+.resume > *:not(.resume-head) { margin-left: 12px; margin-right: 12px; }
+.resume-head { padding: 6px; text-align: center; letter-spacing: .4em; background: var(--hl); border-bottom: var(--line); }
+.resume-top { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
+.resume-photo { width: 64px; height: 76px; display: flex; align-items: center; justify-content: center; border: var(--line-thin); background: var(--bg); }
+.resume-photo .px { width: 52px; height: 52px; }
+.resume-name { font-size: 17px; display: block; }
+.resume-lv { color: var(--alert-ink, #c2453a); }
+.resume-help { padding-bottom: 6px; border-bottom: 1px dashed #d6cfa8; }
+.resume-row { display: flex; justify-content: space-between; align-items: baseline; }
+.resume-row b { font-size: 18px; font-weight: normal; }
+.resume-btn { margin-top: 4px; }
+
+/* ===== トラブルのウィンドウ ===== */
+.inc-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: -18px -20px 12px; padding: 12px 20px; background: var(--sub); border-bottom: var(--line); }
+.inc-title { font-size: 18px; }
+.inc-grid { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 12px; margin-bottom: 10px; }
+.inc-art { width: 100%; height: auto; border: var(--line); shape-rendering: crispEdges; align-self: start; }
+.inc-status { padding: 8px 12px; border: var(--line-thin); background: #fff7ea; }
+.inc-status h3 { margin: 0 0 4px; font-size: 16px; }
+.inc-status .lines { margin: 4px 0; }
+.choice.has-letter { display: flex; align-items: center; gap: 10px; }
+.ch-letter { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: var(--line-thin); background: var(--paper); font-size: 16px; }
+.ch-body { display: block; }
+@media (max-width: 700px) { .inc-grid { grid-template-columns: 1fr; } .inc-art { max-width: 260px; } }
+
+/* ===== 結果画面とふりかえり ===== */
+.end-title { text-align: center; font-size: 24px; }
+.medal-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 8px 0 12px; }
+.medal { display: flex; align-items: center; justify-content: center; width: 112px; height: 112px; border: 6px solid var(--ink); box-shadow: inset 0 0 0 6px rgba(255,255,255,.55); }
+.medal b { font-size: 72px; line-height: 1; font-weight: normal; color: #c2453a; }
+.medal-A { background: #ffd34a; }
+.medal-B { background: #c8d8e8; }
+.medal-B b { color: #3a5a8a; }
+.medal-C { background: #e3b284; }
+.medal-C b { color: #6a4020; }
+.medal-lead { text-align: center; }
+.stats .chk { width: 28px; text-align: center; color: var(--ok); }
+.end-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.end-btns .btn-main { flex: 1 1 160px; }
+.btn-sub { background: var(--hl); }
+.review-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; margin: 8px 0; }
+.review-chart { width: 100%; height: auto; border: var(--line-thin); background: var(--paper); }
+.turns { display: flex; flex-direction: column; gap: 8px; }
+.turn { padding: 8px 10px; border: var(--line-thin); background: var(--paper); }
+.pos { color: var(--ok); }
+@media (max-width: 700px) { .review-grid { grid-template-columns: 1fr; } }
+
+/* ===== 会社名の入力 ===== */
+.namebox { margin: 12px 0; padding: 10px 12px; border: var(--line-thin); background: var(--hl); }
+.name-input { display: block; width: 100%; margin-top: 6px; padding: 8px 10px; border: var(--line); background: var(--paper); font: inherit; font-size: 16px; color: var(--ink); }
+.name-input:focus { outline: 3px solid var(--main); }
+.btn-main:disabled { opacity: .45; cursor: not-allowed; }
